@@ -1,0 +1,3627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Erwan et le Dragon de la Loire</title>
+  <style>
+    /* ============================================================
+   ERWAN ET LE DRAGON DE LA LOIRE — Styles
+   Pixel art / 16-bit arcade aesthetic
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pixel-green: #2ecc40;
+  --pixel-dark-green: #1a7a28;
+  --pixel-gold: #ffd700;
+  --pixel-blue: #006bff;
+  --pixel-orange: #ff6b00;
+  --pixel-red: #e74c3c;
+  --pixel-purple: #9b59b6;
+  --pixel-dark: #1a1a2e;
+  --pixel-panel: #16213e;
+  --pixel-border: #0f3460;
+  --pixel-text: #e0e0ff;
+  --font-pixel: 'Courier New', 'Lucida Console', monospace;
+  --hud-height: 56px;
+  --dragon-panel-height: 90px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #0a0a1a;
+  overflow: hidden;
+  font-family: var(--font-pixel);
+  color: var(--pixel-text);
+  -webkit-text-size-adjust: 100%;
+}
+
+#game-root {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  background: #0a0a1a;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ── HUD ──────────────────────────────────────────────── */
+#hud {
+  flex-shrink: 0;
+  height: var(--hud-height);
+  background: var(--pixel-dark);
+  border-bottom: 3px solid var(--pixel-border);
+  display: flex; align-items: center;
+  padding: 0 12px; gap: 16px;
+  z-index: 100;
+}
+#hud-hearts { font-size: 20px; letter-spacing: 2px; min-width: 70px; }
+#hud-stars  { color: var(--pixel-gold); font-size: 15px; font-weight: bold; min-width: 80px; }
+#hud-act    { flex: 1; text-align: center; font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+#hud-level  { font-size: 14px; min-width: 60px; text-align: right; }
+#btn-journal {
+  background: var(--pixel-border);
+  border: 2px solid var(--pixel-gold);
+  color: var(--pixel-gold);
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+#btn-journal:hover { background: #0f3460; }
+
+/* ── MAIN CANVAS AREA ─────────────────────────────────── */
+#canvas-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#main-canvas {
+  display: block;
+  width: 100%; height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ── DRAGON PANEL ─────────────────────────────────────── */
+#dragon-panel {
+  flex-shrink: 0;
+  height: var(--dragon-panel-height);
+  background: var(--pixel-panel);
+  border-top: 3px solid var(--pixel-border);
+  display: flex; align-items: center;
+  padding: 8px 16px; gap: 16px;
+  z-index: 100;
+}
+#dragon-canvas {
+  width: 72px; height: 72px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+#dragon-info { flex: 1; }
+#dragon-name-display {
+  font-size: 14px; color: var(--pixel-gold);
+  font-weight: bold; letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+#dragon-status { font-size: 11px; color: #aaa; }
+#dragon-mood { font-size: 24px; }
+
+/* ── UI OVERLAY (screens on top of canvas) ────────────── */
+#ui-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+}
+#ui-overlay.active { pointer-events: all; }
+
+/* ── SCREENS ──────────────────────────────────────────── */
+.screen {
+  display: none;
+  width: 100%; height: 100%;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px;
+  background: rgba(10,10,26,0.92);
+  animation: fadeIn 0.3s ease;
+}
+.screen.visible { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── START SCREEN ─────────────────────────────────────── */
+#screen-start { gap: 20px; }
+
+.pixel-title {
+  font-size: clamp(18px, 4vw, 32px);
+  color: var(--pixel-gold);
+  text-align: center;
+  text-shadow: 3px 3px 0 #7a4f00, -1px -1px 0 #7a4f00;
+  letter-spacing: 2px;
+  line-height: 1.3;
+  animation: titlePulse 2s ease-in-out infinite;
+}
+@keyframes titlePulse {
+  0%, 100% { text-shadow: 3px 3px 0 #7a4f00, 0 0 20px rgba(255,215,0,0.3); }
+  50%       { text-shadow: 3px 3px 0 #7a4f00, 0 0 40px rgba(255,215,0,0.7); }
+}
+
+.pixel-subtitle { font-size: 13px; color: #aaa; letter-spacing: 3px; text-transform: uppercase; }
+
+.start-form {
+  display: flex; flex-direction: column; gap: 14px;
+  width: 100%; max-width: 360px;
+  background: var(--pixel-panel);
+  border: 3px solid var(--pixel-border);
+  padding: 20px; border-radius: 4px;
+}
+.start-form label { font-size: 13px; color: #ccc; margin-bottom: 4px; display: block; }
+.pixel-input {
+  width: 100%;
+  background: #0a0a1a;
+  border: 2px solid var(--pixel-border);
+  color: var(--pixel-text);
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pixel-input:focus { border-color: var(--pixel-gold); }
+
+/* ── BUTTONS ──────────────────────────────────────────── */
+.btn {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  padding: 12px 24px;
+  border: 3px solid;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: transform 0.1s, opacity 0.1s;
+  min-height: 48px;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary {
+  background: var(--pixel-green);
+  border-color: var(--pixel-dark-green);
+  color: #fff;
+  width: 100%;
+  font-size: 20px;
+  padding: 14px;
+}
+.btn-primary:hover { background: #27ae38; }
+.btn-secondary {
+  background: var(--pixel-border);
+  border-color: #1a4a80;
+  color: var(--pixel-text);
+}
+.btn-secondary:hover { background: #1a4a80; }
+.btn-small {
+  font-size: 12px;
+  padding: 8px 16px;
+  min-height: 36px;
+}
+.btn-parents {
+  position: absolute; top: 8px; right: 8px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #555;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: var(--font-pixel);
+  border-radius: 3px;
+}
+.btn-parents:hover { color: #999; border-color: #666; }
+
+/* ── DIALOGUE BOX ─────────────────────────────────────── */
+.dialogue-box {
+  background: var(--pixel-panel);
+  border: 3px solid var(--pixel-border);
+  border-radius: 4px;
+  padding: 16px 20px;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+}
+.dialogue-box::before {
+  content: '';
+  position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.dialogue-speaker {
+  font-size: 12px; color: var(--pixel-gold);
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.dialogue-text {
+  font-size: 15px; line-height: 1.6;
+  color: var(--pixel-text);
+}
+
+/* ── FLAG ANNOUNCEMENT ────────────────────────────────── */
+#flag-announce {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10,10,26,0.85);
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#flag-announce.show { opacity: 1; }
+#flag-emoji { font-size: 100px; animation: flagBounce 0.5s ease; }
+@keyframes flagBounce {
+  0%   { transform: scale(0.5); }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ── EXERCISE PANEL ───────────────────────────────────── */
+#exercise-panel {
+  width: 100%; max-width: 560px;
+  background: var(--pixel-panel);
+  border: 3px solid var(--pixel-border);
+  border-radius: 4px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.exercise-title {
+  font-size: 13px; color: var(--pixel-gold);
+  text-transform: uppercase; letter-spacing: 2px;
+  border-bottom: 1px solid var(--pixel-border);
+  padding-bottom: 8px;
+}
+.exercise-question {
+  font-size: 16px; line-height: 1.6;
+  color: var(--pixel-text);
+}
+.exercise-feedback {
+  font-size: 14px; min-height: 22px;
+  text-align: center; font-weight: bold;
+  transition: color 0.2s;
+}
+.feedback-correct { color: var(--pixel-green); }
+.feedback-wrong   { color: var(--pixel-orange); }
+.feedback-hint    { color: #aaa; font-style: italic; }
+
+/* ── MCQ CHOICES ──────────────────────────────────────── */
+.choices-grid {
+  display: grid;
+  gap: 10px;
+}
+.choices-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.choices-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.choices-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+
+.choice-btn {
+  font-family: var(--font-pixel);
+  background: #0a0a1a;
+  border: 2px solid var(--pixel-border);
+  color: var(--pixel-text);
+  padding: 12px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  min-height: 50px;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+  line-height: 1.3;
+}
+.choice-btn:hover  { border-color: var(--pixel-blue); background: #0d0d2b; }
+.choice-btn.correct { border-color: var(--pixel-green); background: #0a2a0a; color: var(--pixel-green); }
+.choice-btn.wrong   { border-color: var(--pixel-red);   background: #2a0a0a; color: var(--pixel-red); }
+.choice-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+/* ── TEXT INPUT EXERCISES ─────────────────────────────── */
+.fill-blank-area {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  font-size: 18px; line-height: 2;
+}
+.fill-word { color: var(--pixel-gold); }
+.fill-input {
+  font-family: var(--font-pixel);
+  background: #0a0a1a;
+  border: 0; border-bottom: 3px solid var(--pixel-gold);
+  color: var(--pixel-text);
+  font-size: 18px;
+  width: 120px;
+  padding: 4px 6px;
+  outline: none;
+  text-align: center;
+}
+.full-input-area { display: flex; gap: 8px; width: 100%; }
+.full-input {
+  font-family: var(--font-pixel);
+  flex: 1;
+  background: #0a0a1a;
+  border: 2px solid var(--pixel-border);
+  color: var(--pixel-text);
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  outline: none;
+}
+.full-input:focus { border-color: var(--pixel-gold); }
+
+/* ── DRAG DROP WORD ORDER ─────────────────────────────── */
+.drag-zone {
+  min-height: 60px;
+  border: 2px dashed var(--pixel-border);
+  border-radius: 4px;
+  padding: 8px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.drag-zone.target-zone { background: rgba(0,107,255,0.05); }
+.drag-word {
+  font-family: var(--font-pixel);
+  background: var(--pixel-blue);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 3px;
+  font-size: 15px;
+  cursor: grab;
+  user-select: none;
+  border: 2px solid #0050cc;
+  transition: transform 0.1s;
+  touch-action: none;
+}
+.drag-word:active { cursor: grabbing; transform: scale(1.05); }
+.drag-word.dragging { opacity: 0.4; }
+
+/* ── NUMBER INPUT ─────────────────────────────────────── */
+.numpad-area { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.numpad-display {
+  font-size: 28px; color: var(--pixel-gold);
+  background: #0a0a1a;
+  border: 2px solid var(--pixel-border);
+  padding: 10px 20px;
+  min-width: 120px;
+  text-align: center;
+  border-radius: 3px;
+  letter-spacing: 4px;
+}
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 220px;
+}
+.numpad-btn {
+  font-family: var(--font-pixel);
+  background: var(--pixel-border);
+  border: 2px solid #1a4a80;
+  color: var(--pixel-text);
+  font-size: 20px;
+  padding: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  min-height: 52px;
+  transition: background 0.1s;
+}
+.numpad-btn:hover  { background: #1a4a80; }
+.numpad-btn:active { transform: scale(0.94); }
+
+/* ── CELEBRATION ──────────────────────────────────────── */
+#celebration {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 300;
+  overflow: hidden;
+}
+.confetti-particle {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── GAME OVER SCREEN ─────────────────────────────────── */
+#screen-gameover {
+  gap: 20px; text-align: center;
+  background: rgba(40,0,0,0.95);
+}
+.gameover-title { font-size: 28px; color: var(--pixel-red); animation: titlePulse 1.5s infinite; }
+
+/* ── JOURNAL SCREEN ───────────────────────────────────── */
+#screen-journal {
+  gap: 16px; overflow-y: auto;
+  background: rgba(10,15,30,0.97);
+}
+.journal-scroll {
+  width: 100%; max-width: 540px;
+  background: var(--pixel-panel);
+  border: 3px solid var(--pixel-border);
+  padding: 20px;
+  border-radius: 4px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.journal-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--pixel-border);
+  font-size: 14px; line-height: 1.5;
+}
+.journal-entry-label { color: var(--pixel-gold); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── PIN MODAL ────────────────────────────────────────── */
+#pin-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 500;
+}
+#pin-modal.show { display: flex; }
+.pin-box {
+  background: var(--pixel-panel);
+  border: 3px solid var(--pixel-border);
+  padding: 24px; border-radius: 4px;
+  display: flex; flex-direction: column; gap: 16px;
+  min-width: 280px;
+}
+.pin-title { font-size: 16px; color: var(--pixel-gold); text-align: center; }
+
+/* ── SETTINGS PANEL ───────────────────────────────────── */
+#settings-panel {
+  display: none; flex-direction: column; gap: 14px;
+}
+#settings-panel.show { display: flex; }
+.difficulty-btn {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  padding: 12px 16px;
+  border: 2px solid var(--pixel-border);
+  background: #0a0a1a;
+  color: var(--pixel-text);
+  cursor: pointer;
+  border-radius: 3px;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+}
+.difficulty-btn.selected { border-color: var(--pixel-gold); background: #1a1a00; color: var(--pixel-gold); }
+
+/* ── MINI MAP ─────────────────────────────────────────── */
+#mini-map-canvas {
+  width: 100%; max-width: 400px;
+  border: 3px solid var(--pixel-border);
+  image-rendering: pixelated;
+}
+
+/* ── SCENE NARRATION ──────────────────────────────────── */
+.narration-screen {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; padding: 20px;
+  width: 100%; height: 100%;
+}
+.scene-canvas-container {
+  width: 100%; max-width: 520px;
+  aspect-ratio: 2/1;
+  position: relative;
+}
+.scene-canvas {
+  width: 100%; height: 100%;
+  image-rendering: pixelated;
+  border: 3px solid var(--pixel-border);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --hud-height: 48px; --dragon-panel-height: 76px; }
+  .pixel-title { font-size: 16px; }
+  .btn { font-size: 14px; padding: 10px 18px; }
+  .choice-btn { font-size: 13px; padding: 10px 6px; }
+  .exercise-question { font-size: 14px; }
+  .dialogue-text { font-size: 13px; }
+}
+
+/* ── SCROLLBARS ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--pixel-dark); }
+::-webkit-scrollbar-thumb { background: var(--pixel-border); border-radius: 3px; }
+
+/* ── TRANSITIONS ──────────────────────────────────────── */
+.slide-in  { animation: slideIn 0.4s ease; }
+.slide-out { animation: slideOut 0.4s ease; }
+@keyframes slideIn  { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes slideOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-40px); } }
+
+/* ── LOADING / TRANSITION OVERLAY ─────────────────────── */
+#transition-overlay {
+  position: fixed; inset: 0;
+  background: #0a0a1a;
+  z-index: 400;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s;
+}
+#transition-overlay.show { opacity: 1; pointer-events: all; }
+.transition-icon { font-size: 64px; animation: spinBounce 0.8s infinite; }
+@keyframes spinBounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50%       { transform: scale(1.2) rotate(20deg); }
+}
+
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     GAME ROOT
+═══════════════════════════════════════════════════════════ -->
+<div id="game-root">
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="hud-hearts">❤️❤️❤️</div>
+    <div id="hud-stars">⭐ 0</div>
+    <div id="hud-act">Prêt à l'aventure !</div>
+    <div id="hud-level">⚔️⚔️</div>
+    <button id="btn-journal" onclick="showJournal()" title="Journal de bord">📔</button>
+  </div>
+
+  <!-- Main canvas + UI overlay -->
+  <div id="canvas-area">
+    <canvas id="main-canvas"></canvas>
+
+    <div id="ui-overlay">
+
+      <!-- ── START SCREEN ───────────────────────────────── -->
+      <div class="screen visible" id="screen-start">
+        <div class="pixel-title">ERWAN ET LE DRAGON<br>DE LA LOIRE</div>
+        <div class="pixel-subtitle">⚔️ Jeu d'Aventure Éducatif ⚔️</div>
+
+        <div class="start-form">
+          <div>
+            <label for="input-player">Ton prénom :</label>
+            <input class="pixel-input" id="input-player" type="text" value="Erwan" maxlength="20" autocomplete="off">
+          </div>
+          <div>
+            <label for="input-dragon">Nom de ton dragon* :</label>
+            <input class="pixel-input" id="input-dragon" type="text" placeholder="Choisis un nom..." maxlength="20" autocomplete="off">
+            <div style="font-size:11px;color:#666;margin-top:4px;">* Obligatoire — ce nom sera utilisé tout au long du jeu !</div>
+          </div>
+          <button class="btn btn-primary" onclick="startGame()">⚔️ COMMENCER L'AVENTURE !</button>
+        </div>
+
+        <button class="btn-parents" onclick="openParentMenu()">⚙️ Parents</button>
+      </div>
+
+      <!-- ── NARRATION SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-narration">
+        <div class="narration-screen">
+          <div class="scene-canvas-container">
+            <canvas class="scene-canvas" id="scene-canvas"></canvas>
+          </div>
+          <div class="dialogue-box">
+            <div class="dialogue-speaker" id="narr-speaker"></div>
+            <div class="dialogue-text" id="narr-text"></div>
+          </div>
+          <button class="btn btn-secondary" id="narr-next">Continuer ▶</button>
+        </div>
+      </div>
+
+      <!-- ── EXERCISE SCREEN ───────────────────────────── -->
+      <div class="screen" id="screen-exercise">
+        <div id="exercise-panel"></div>
+      </div>
+
+      <!-- ── MINI-GAME SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-minigame">
+        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:10px;height:100%;">
+          <div id="mg-title" style="font-size:18px;color:#ffd700;text-align:center;padding:8px;"></div>
+          <div id="mg-instr" style="font-size:13px;color:#aaa;text-align:center;"></div>
+          <canvas id="minigame-canvas" style="flex:1;width:100%;border:3px solid #0f3460;image-rendering:pixelated;"></canvas>
+        </div>
+      </div>
+
+      <!-- ── JOURNAL SCREEN ───────────────────────────── -->
+      <div class="screen" id="screen-journal">
+        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;">
+          <div class="pixel-title" style="font-size:20px;">📔 Journal de bord</div>
+          <div class="journal-scroll">
+            <div id="journal-list"></div>
+          </div>
+          <button class="btn btn-secondary" onclick="hideAllScreens()">← Retour à l'aventure</button>
+        </div>
+      </div>
+
+      <!-- ── GAME OVER SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-gameover">
+        <div class="gameover-title">💔 Courage chevalier !</div>
+        <div class="dialogue-box" style="text-align:center;">
+          <p style="margin-bottom:12px;">Tu as perdu tous tes cœurs...<br>Mais un chevalier ne renonce jamais !</p>
+          <div id="gameover-stars" style="font-size:20px;color:#ffd700;margin-bottom:16px;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="restartGame()">🔄 Recommencer l'aventure !</button>
+      </div>
+
+      <!-- ── EPILOGUE SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-epilogue">
+        <div style="width:100%;max-width:600px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;padding:8px;">
+          <div class="pixel-title">🎉 VICTOIRE !</div>
+
+          <div class="dialogue-box" style="text-align:center;">
+            <div style="font-size:15px;line-height:1.8;color:#ffd700;">
+              🏅 PARCHEMIN DU SACRE 🏅
+            </div>
+            <div style="font-size:16px;margin-top:12px;line-height:1.8;">
+              <strong id="epilogue-player" style="color:#ffd700;"></strong>,<br>
+              Chevalier de Brooklyn,<br>
+              Sauveur de <strong id="epilogue-dragon" style="color:#2ecc40;"></strong>,<br>
+              est sacré<br>
+              <strong style="font-size:18px;color:#ffd700;">Grand Chevalier de Bretagne !</strong>
+            </div>
+          </div>
+
+          <div class="dialogue-box" style="text-align:center;">
+            <div style="color:#ffd700;font-size:18px;">⭐ Score final : <strong id="epilogue-stars"></strong> étoiles Knicks !</div>
+            <div style="color:#aaa;font-size:13px;margin-top:8px;">Tu es un vrai champion !</div>
+          </div>
+
+          <div class="dialogue-box">
+            <div style="color:#ffd700;font-size:14px;margin-bottom:10px;">📔 TON JOURNAL DE BORD COMPLET :</div>
+            <div id="epilogue-journal" style="max-height:200px;overflow-y:auto;"></div>
+          </div>
+
+          <button class="btn btn-primary" onclick="restartGame()">🔄 Rejouer une nouvelle aventure !</button>
+        </div>
+      </div>
+
+    </div><!-- /ui-overlay -->
+  </div><!-- /canvas-area -->
+
+  <!-- Dragon panel -->
+  <div id="dragon-panel">
+    <canvas id="dragon-canvas" width="72" height="72"></canvas>
+    <div id="dragon-info">
+      <div id="dragon-name-display">🐉 ???</div>
+      <div id="dragon-status">En attente du chevalier...</div>
+    </div>
+    <div id="dragon-mood">😴</div>
+  </div>
+
+</div><!-- /game-root -->
+
+<!-- Flag announcement overlay -->
+<div id="flag-announce">
+  <div id="flag-emoji">🇫🇷</div>
+</div>
+
+<!-- Celebration layer -->
+<div id="celebration"></div>
+
+<!-- Transition overlay -->
+<div id="transition-overlay">
+  <div class="transition-icon" id="transition-icon">✈️</div>
+</div>
+
+<!-- PIN Modal -->
+<div id="pin-modal">
+  <div class="pin-box">
+    <div class="pin-title">⚙️ Menu Parents</div>
+    <div id="pin-section">
+      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px;">Code PIN :</label>
+      <input class="pixel-input" id="pin-input" type="password" maxlength="4" placeholder="••••">
+      <div id="pin-error" style="color:#e74c3c;font-size:12px;margin-top:4px;min-height:16px;"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-primary" style="flex:1" onclick="checkPin()">Valider</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('pin-modal').classList.remove('show')">Annuler</button>
+      </div>
+    </div>
+    <div class="settings-panel" id="settings-panel">
+      <div style="font-size:14px;color:#ffd700;margin-bottom:8px;">Niveau de difficulté :</div>
+      <button class="difficulty-btn" data-diff="easy"   onclick="setDifficulty('easy')">⚔️ Simple — Pour débuter</button>
+      <button class="difficulty-btn selected" data-diff="medium" onclick="setDifficulty('medium')">⚔️⚔️ Moyen — Recommandé ✓</button>
+      <button class="difficulty-btn" data-diff="hard"   onclick="setDifficulty('hard')">⚔️⚔️⚔️ Complexe — Défi !</button>
+      <div style="font-size:11px;color:#666;margin-top:8px;line-height:1.5;">
+        Le niveau affecte la longueur des textes, la complexité des maths et le type d'exercices d'écriture.
+      </div>
+      <button class="btn btn-primary" onclick="document.getElementById('pin-modal').classList.remove('show');document.getElementById('pin-section').style.display='';document.getElementById('settings-panel').classList.remove('show');" style="margin-top:8px;">
+        ✓ Enregistrer et fermer
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ═══ audio.js ═══ */
+/* ============================================================
+   AUDIO ENGINE — Web Audio API, 8-bit sounds
+   ============================================================ */
+
+const Audio8bit = (() => {
+  let ctx = null;
+
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function beep({ freq = 440, type = 'square', duration = 0.15, vol = 0.18, delay = 0, sweep = null }) {
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.type = type;
+    const t = c.currentTime + delay;
+    osc.frequency.setValueAtTime(freq, t);
+    if (sweep) osc.frequency.linearRampToValueAtTime(sweep, t + duration);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t);
+    osc.stop(t + duration + 0.02);
+  }
+
+  const sounds = {
+    correct() {
+      beep({ freq: 523, duration: 0.1 });
+      beep({ freq: 659, duration: 0.1, delay: 0.1 });
+      beep({ freq: 784, duration: 0.2, delay: 0.2 });
+    },
+    wrong() {
+      beep({ freq: 220, type: 'sawtooth', duration: 0.2, vol: 0.12 });
+      beep({ freq: 165, type: 'sawtooth', duration: 0.25, delay: 0.2, vol: 0.1 });
+    },
+    click() {
+      beep({ freq: 440, duration: 0.06, vol: 0.1 });
+    },
+    star() {
+      beep({ freq: 880, duration: 0.08, vol: 0.15 });
+      beep({ freq: 1100, duration: 0.08, delay: 0.08, vol: 0.15 });
+    },
+    heartLost() {
+      beep({ freq: 330, type: 'sawtooth', duration: 0.15, vol: 0.2 });
+      beep({ freq: 220, type: 'sawtooth', duration: 0.3, delay: 0.15, vol: 0.18 });
+    },
+    levelUp() {
+      [523, 659, 784, 1047].forEach((f, i) =>
+        beep({ freq: f, duration: 0.12, delay: i * 0.1, vol: 0.2 }));
+    },
+    bossDead() {
+      const notes = [523, 659, 784, 659, 784, 1047, 784, 1047, 1319];
+      notes.forEach((f, i) => beep({ freq: f, duration: 0.14, delay: i * 0.1, vol: 0.2 }));
+    },
+    langFR() {
+      beep({ freq: 350, duration: 0.12, vol: 0.15 });
+      beep({ freq: 440, duration: 0.12, delay: 0.12, vol: 0.15 });
+    },
+    langEN() {
+      beep({ freq: 550, duration: 0.12, vol: 0.15 });
+      beep({ freq: 660, duration: 0.12, delay: 0.12, vol: 0.15 });
+    },
+    dragonGrow() {
+      beep({ freq: 220, type: 'triangle', duration: 0.5, sweep: 440, vol: 0.25 });
+    },
+    fanfare() {
+      const m = [392, 392, 392, 311, 466, 392, 311, 466, 392];
+      m.forEach((f, i) => beep({ freq: f, duration: 0.18, delay: i * 0.18, vol: 0.2 }));
+    },
+    transition() {
+      beep({ freq: 660, duration: 0.08, vol: 0.1 });
+      beep({ freq: 880, duration: 0.08, delay: 0.1, vol: 0.1 });
+    },
+  };
+
+  return { play: (name) => { try { sounds[name]?.(); } catch(e) {} } };
+})();
+
+
+/* ═══ sprites.js ═══ */
+/* ============================================================
+   SPRITE & PIXEL ART ENGINE
+   All art drawn on Canvas using 2D color arrays.
+   ============================================================ */
+
+const Sprites = (() => {
+
+  // ── Color palette shorthand ──────────────────────────────
+  const _ = null; // transparent
+  const K = '#111'; const W = '#eee'; const R = '#e74c3c';
+  const G = '#2ecc40'; const DG = '#1a7a28'; const LG = '#90ee90';
+  const B = '#006bff'; const LB = '#5dade2'; const DB = '#003580';
+  const Y = '#ffd700'; const O = '#ff6b00'; const P = '#9b59b6';
+  const BR = '#8b4513'; const SK = '#ffdbac'; const GR = '#888';
+  const DGR = '#444'; const WH = '#fff'; const BK = '#222d';
+
+  // ── Draw helper ──────────────────────────────────────────
+  function draw(ctx, grid, x, y, scale = 3) {
+    grid.forEach((row, r) => row.forEach((c, col) => {
+      if (c !== _) { ctx.fillStyle = c; ctx.fillRect(x + col*scale, y + r*scale, scale, scale); }
+    }));
+  }
+
+  // ── ERWAN — 12×16 green knight ───────────────────────────
+  const ERWAN = [
+    [_,_,_,DGR,DGR,DGR,DGR,_,_,_,_,_],
+    [_,_,DGR,G,  G,  G,  G,DGR,_,_,_,_],
+    [_,_,DGR,SK, SK, SK, SK,DGR,_,_,_,_],
+    [_,_,_,DGR,SK, SK,DGR,_,_,_,_,_],
+    [_,_,_,DG, G,  G,  DG,_,_,_,_,_],
+    [_,DG,DG,G,  G,  G,  G, DG,DG,_,_,_],
+    [_,G, G, G,  Y,  Y,  G,  G, G, _,_,_],
+    [_,G, G, G,  G,  G,  G,  G, G, _,_,_],
+    [_,G, G, G,  G,  G,  G,  G, G, _,_,_],
+    [_,DG,G, Y,  G,  G,  Y,  G,DG,_,_,_],
+    [_,_,DG,DG, G,  G, DG,DG,_,_,_,_],
+    [_,_,G,  G,  DG,DG, G, G, _,_,_,_],
+    [_,_,G,  G,  _,  _,  G, G, _,_,_,_],
+    [_,_,DG,DG, _,  _,  DG,DG,_,_,_,_],
+    [_,_,Y,  Y,  _,  _,  Y, Y, _,_,_,_],
+    [_,_,GR, GR, _,  _,  GR,GR,_,_,_,_],
+  ];
+
+  // ── BAT mascot — 6×5 ────────────────────────────────────
+  const BAT = [
+    [_,K,K,K,K,_],
+    [K,K,GR,GR,K,K],
+    [K,GR,W, W, GR,K],
+    [_,K,K, K, K,_],
+    [_,K,_,  _,K,_],
+  ];
+
+  // ── DRAGON stages ────────────────────────────────────────
+  // Stage 0: tiny grey (imprisoned)
+  const DRAGON_0 = [
+    [_,_,GR,GR,GR,_],
+    [_,GR,W, W, GR,GR],
+    [GR,W, W, W, W, GR],
+    [GR,GR,W, W,GR,GR],
+    [_,GR,GR,GR,GR,_],
+    [_,_,GR,GR,_,_],
+  ];
+  // Stage 1: small, green tint
+  const DRAGON_1 = [
+    [_,_,LG,LG,LG,_,_],
+    [_,LG,G,  G,  G, LG,_],
+    [LG,G, W,  W,  G, G, LG],
+    [G, G, G,  G,  G, G, G],
+    [_,G, G,  G,  G, G,_],
+    [_,_,G,  LG, G,_,_],
+    [_,_,DG,DG, DG,_,_],
+  ];
+  // Stage 2: medium, more colors
+  const DRAGON_2 = [
+    [_,DG,G,  Y,  G, DG,_,_],
+    [DG,G, G,  G,  G,  G, DG,_],
+    [G, G, W,  W,  W,  G,  G, _],
+    [G, Y, G,  G,  G,  Y,  G, _],
+    [G, G, G,  G,  G,  G,  G, _],
+    [_,G, DG,G,  G, DG,G, _],
+    [_,DG,DG,G,  G, DG,DG,_],
+    [_,_,DG,DG,DG,DG,_,_],
+  ];
+  // Stage 3: large, colorful
+  const DRAGON_3 = [
+    [_,_,O,  DG,DG,DG,O,  _,_],
+    [_,DG,G,  G,  G,  G,  G, DG,_],
+    [DG,G, G,  W,  W,  W,  G, G, DG],
+    [G, G, Y,  W,  W,  W,  Y, G, G],
+    [G, G, G,  G,  G,  G,  G, G, G],
+    [G, O, G,  G,  G,  G,  G, O, G],
+    [DG,G, DG,G,  G,  G, DG,G, DG],
+    [_,DG,DG,DG,G,  DG,DG,DG,_],
+    [_,_,DG,DG,DG,DG,DG,_,_],
+  ];
+  // Stage 4: majestic
+  const DRAGON_4 = [
+    [_,O,  O,  DG,DG,DG,DG,O,  O, _],
+    [O,DG,G,  G,  Y,  Y,  G,  G, DG,O],
+    [DG,G, G,  Y,  W,  W,  Y,  G, G, DG],
+    [G, G, Y,  W,  W,  W,  W,  Y, G, G],
+    [G, G, G,  G,  W,  W,  G,  G, G, G],
+    [G, O, G,  G,  G,  G,  G,  G, O, G],
+    [G, G, O,  G,  G,  G,  G,  O, G, G],
+    [DG,G, G, DG,G,  G, DG,G,  G, DG],
+    [_,DG,DG,DG,DG,DG,DG,DG,DG,_],
+    [_,_,DG,DG,DG,DG,DG,DG,_,_],
+  ];
+  const DRAGONS = [DRAGON_0, DRAGON_1, DRAGON_2, DRAGON_3, DRAGON_4];
+
+  // ── Grandparents ─────────────────────────────────────────
+  const PAPI = [
+    [_,_,BR,BR,BR,BR,_],
+    [_,BR,W,  W,  W,  BR,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,GR,GR, GR,_,_],
+    [_,B, B,  B,  B, B,_],
+    [_,B, B,  B,  B, B,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,BR,_,  BR,_,_],
+  ];
+  const MAMINETTE = [
+    [_,_,Y,  Y,  Y,_,_],
+    [_,Y,W,  W,  W,Y,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,GR,GR, GR,_,_],
+    [_,R, R,  R,  R, R,_],
+    [_,R, R,  R,  R, R,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,R,  _,  R, _,_],
+  ];
+  const MAMIYA = [
+    [_,_,LG,LG,LG,_,_],
+    [_,LG,W, W, W, LG,_],
+    [_,_,SK,SK, SK,_,_],
+    [_,_,SK,SK, SK,_,_],
+    [_,_,GR,GR,GR,_,_],
+    [_,G, G,  G,  G, G,_],
+    [_,G, G,  G,  G, G,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,G,  _,  G, _,_],
+  ];
+  const PAPOU = [
+    [_,_,GR,GR,GR,_,_],
+    [_,GR,W, W, W, GR,_],
+    [_,_,SK,SK, SK,_,_],
+    [_,_,SK,SK, SK,_,_],
+    [_,_,GR,GR,GR,_,_],
+    [_,BR,BR,BR,BR,BR,_],
+    [_,BR,BR,BR,BR,BR,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,BR,_,  BR,_,_],
+  ];
+  const RAPHAEL = [
+    [_,_,Y,  Y,  Y,_,_],
+    [_,Y,SK, SK, SK,Y,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,_,  SK, _,_,_],
+    [_,_,LB,LB,LB,_,_],
+    [_,LB,LB,LB,LB,LB,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,Y,  _,  Y, _,_],
+  ];
+
+  // ── GABRIEL, ADI, CLAIRE (kids) ──────────────────────────
+  const GABRIEL = [
+    [_,_,K,  K,  K,_,_],
+    [_,K,SK, SK, SK,K,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,_,SK,  _,_,_],
+    [_,_,O, O,  O,_,_],
+    [_,O, O, O,  O, O,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,B,  _,  B, _,_],
+  ];
+  const ADI = [
+    [_,_,BR,BR,BR,_,_],
+    [_,BR,SK,SK, SK,BR,_],
+    [_,_,SK,SK, SK,_,_],
+    [_,_,_,SK,  _,_,_],
+    [_,_,P, P,  P,_,_],
+    [_,P, P, P,  P, P,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,P,  _,  P, _,_],
+  ];
+  const CLAIRE = [
+    [_,_,R,  R,  R,_,_],
+    [_,R,SK, SK, SK,R,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,_,SK,  _,_,_],
+    [_,_,R, LG, R,_,_],
+    [_,R, LG,LG,R, R,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,R,  _,  R, _,_],
+  ];
+
+  // ── SORCIER MALFANG ──────────────────────────────────────
+  const MALFANG = [
+    [_,_,K,  K,  K,  K,  K,_,_],
+    [_,K,P,  P,  P,  P,  P,K,_],
+    [_,K,P,  GR, GR, GR, P,K,_],
+    [_,_,K,  GR, GR, GR, K,_,_],
+    [_,_,_,  K,  GR, K,  _,_,_],
+    [_,K,K,  K,  P,  K,  K,K,_],
+    [_,K,P,  P,  P,  P,  P,K,_],
+    [_,K,P,  P,  P,  P,  P,K,_],
+    [K,K,K,  P,  _,  P,  K,K,K],
+    [K,_,K,  P,  _,  P,  K,_,K],
+    [K,_,_,  K,  _,  K,  _,_,K],
+  ];
+
+  // ── Backgrounds ──────────────────────────────────────────
+  function drawBackground(ctx, W, H, type) {
+    ctx.clearRect(0, 0, W, H);
+    const drawPixelGround = (y, color) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(0, y, W, H - y);
+    };
+    const drawSky = (color1, color2) => {
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, color1);
+      grad.addColorStop(1, color2);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    };
+
+    switch (type) {
+      case 'brooklyn':
+        drawSky('#1a1a3e', '#2d4a7a');
+        // Buildings silhouette
+        ctx.fillStyle = '#111';
+        [[0,80,40,H],[50,60,50,H],[110,70,35,H],[155,50,60,H],[225,75,30,H],
+         [265,55,45,H],[320,65,40,H],[370,45,55,H],[430,70,35,H],[475,60,50,H]
+        ].forEach(([x,y,w,h]) => ctx.fillRect(x, y, w, h));
+        // Stars
+        ctx.fillStyle = '#fffde7';
+        for (let i=0; i<30; i++) {
+          ctx.fillRect(Math.sin(i*37)*W/2+W/2, Math.sin(i*13)*50+10, 2, 2);
+        }
+        // Ground
+        ctx.fillStyle = '#333';
+        ctx.fillRect(0, H*0.75, W, H*0.25);
+        break;
+
+      case 'school':
+        drawSky('#87ceeb', '#b0e2ff');
+        ctx.fillStyle = '#c8e6c9';
+        ctx.fillRect(0, H*0.7, W, H*0.3);
+        // School building
+        ctx.fillStyle = '#b05020';
+        ctx.fillRect(W*0.2, H*0.3, W*0.6, H*0.45);
+        ctx.fillStyle = '#8b3018';
+        ctx.fillRect(W*0.15, H*0.2, W*0.7, H*0.12);
+        // Windows
+        ctx.fillStyle = '#aee';
+        [[0.25,0.38],[0.45,0.38],[0.65,0.38],[0.25,0.55],[0.65,0.55]].forEach(([rx,ry]) => {
+          ctx.fillRect(W*rx, H*ry, W*0.08, H*0.08);
+        });
+        // Sign
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(W*0.33, H*0.24, W*0.34, H*0.07);
+        ctx.fillStyle = '#333';
+        ctx.font = `bold ${Math.floor(H*0.045)}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('PS 58', W/2, H*0.3);
+        break;
+
+      case 'airport':
+        drawSky('#c5e8f7', '#e8f4fc');
+        ctx.fillStyle = '#ccc';
+        ctx.fillRect(0, H*0.72, W, H*0.28);
+        // Terminal
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillRect(0, H*0.35, W, H*0.4);
+        ctx.fillStyle = '#aaa';
+        ctx.fillRect(0, H*0.35, W, H*0.04);
+        // Planes
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(W*0.1, H*0.55, W*0.2, H*0.04);
+        ctx.fillRect(W*0.6, H*0.58, W*0.18, H*0.04);
+        break;
+
+      case 'plane_interior':
+        drawSky('#1a3a5c', '#2d5a8e');
+        // Plane interior
+        ctx.fillStyle = '#e8e8e8';
+        ctx.fillRect(0, H*0.1, W, H*0.8);
+        // Windows
+        ctx.fillStyle = '#87ceeb';
+        [0.15, 0.4, 0.65, 0.85].forEach(rx => {
+          ctx.fillStyle = '#87ceeb';
+          ctx.beginPath();
+          ctx.ellipse(W*rx, H*0.25, W*0.06, H*0.1, 0, 0, Math.PI*2);
+          ctx.fill();
+          ctx.strokeStyle = '#aaa'; ctx.lineWidth = 2; ctx.stroke();
+        });
+        ctx.fillStyle = '#d0d0d0';
+        ctx.fillRect(0, H*0.15, W, H*0.03);
+        ctx.fillRect(0, H*0.82, W, H*0.03);
+        break;
+
+      case 'paris':
+        drawSky('#87ceeb', '#c8e6f5');
+        ctx.fillStyle = '#90c060';
+        ctx.fillRect(0, H*0.72, W, H*0.28);
+        // Eiffel Tower silhouette
+        const tx = W*0.5;
+        ctx.fillStyle = '#555';
+        ctx.beginPath();
+        ctx.moveTo(tx, H*0.05);
+        ctx.lineTo(tx-W*0.02, H*0.35);
+        ctx.lineTo(tx-W*0.12, H*0.72);
+        ctx.lineTo(tx+W*0.12, H*0.72);
+        ctx.lineTo(tx+W*0.02, H*0.35);
+        ctx.closePath();
+        ctx.fill();
+        break;
+
+      case 'road':
+        drawSky('#87ceeb', '#c5e8ff');
+        ctx.fillStyle = '#6aaa40';
+        ctx.fillRect(0, H*0.55, W, H*0.45);
+        ctx.fillStyle = '#888';
+        ctx.fillRect(0, H*0.62, W, H*0.2);
+        ctx.fillStyle = '#fff';
+        for (let x=0; x<W; x+=40) ctx.fillRect(x, H*0.71, 20, 4);
+        // Trees
+        ctx.fillStyle = '#3a7a20';
+        [0.1,0.3,0.7,0.9].forEach(rx => {
+          ctx.fillRect(W*rx-5, H*0.42, 10, H*0.15);
+          ctx.fillStyle = '#2a5a15';
+          ctx.beginPath();
+          ctx.arc(W*rx, H*0.4, W*0.04, 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#3a7a20';
+        });
+        break;
+
+      case 'castle':
+        drawSky('#3a4a6a', '#6a7aa0');
+        ctx.fillStyle = '#2a2a3a';
+        ctx.fillRect(0, H*0.6, W, H*0.4);
+        // Castle silhouette
+        ctx.fillStyle = '#555568';
+        // Main wall
+        ctx.fillRect(W*0.1, H*0.3, W*0.8, H*0.35);
+        // Towers
+        [[0.08,0.15],[0.42,0.12],[0.7,0.18],[0.88,0.15]].forEach(([rx,ry]) => {
+          ctx.fillRect(W*rx, H*ry, W*0.12, H*0.18);
+          // Battlements
+          for (let b=0; b<3; b++) {
+            ctx.fillRect(W*rx + b*W*0.04, H*ry - H*0.04, W*0.025, H*0.04);
+          }
+        });
+        // Gate
+        ctx.fillStyle = '#1a1a2a';
+        ctx.beginPath();
+        ctx.arc(W*0.5, H*0.5, W*0.07, Math.PI, 0);
+        ctx.fillRect(W*0.43, H*0.5, W*0.14, H*0.15);
+        ctx.fill();
+        // Moon
+        ctx.fillStyle = '#fffde7';
+        ctx.beginPath();
+        ctx.arc(W*0.15, H*0.12, W*0.04, 0, Math.PI*2);
+        ctx.fill();
+        break;
+
+      case 'brittany':
+        drawSky('#87ceeb', '#b3d9f0');
+        // Sea
+        const seaGrad = ctx.createLinearGradient(0, H*0.5, 0, H);
+        seaGrad.addColorStop(0, '#1a6fa0');
+        seaGrad.addColorStop(1, '#0d4a6f');
+        ctx.fillStyle = seaGrad;
+        ctx.fillRect(0, H*0.5, W, H*0.5);
+        // Waves
+        ctx.strokeStyle = '#5ab0d4';
+        ctx.lineWidth = 2;
+        for (let w=0; w<4; w++) {
+          ctx.beginPath();
+          for (let x=0; x<W; x+=8) {
+            ctx.lineTo(x, H*(0.55 + w*0.06) + Math.sin(x*0.05)*4);
+          }
+          ctx.stroke();
+        }
+        // Land
+        ctx.fillStyle = '#5a8a30';
+        ctx.fillRect(0, H*0.45, W, H*0.08);
+        // House
+        ctx.fillStyle = '#e8e0d0';
+        ctx.fillRect(W*0.1, H*0.3, W*0.2, H*0.18);
+        ctx.fillStyle = '#888';
+        ctx.beginPath();
+        ctx.moveTo(W*0.08, H*0.3);
+        ctx.lineTo(W*0.2, H*0.18);
+        ctx.lineTo(W*0.32, H*0.3);
+        ctx.fill();
+        break;
+
+      default:
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  // ── Public draw API ──────────────────────────────────────
+  function drawCharacter(ctx, name, x, y, scale=3, frame=0) {
+    const spriteMap = {
+      erwan: ERWAN, papi: PAPI, maminette: MAMINETTE,
+      mamiya: MAMIYA, papou: PAPOU, raphael: RAPHAEL,
+      gabriel: GABRIEL, adi: ADI, claire: CLAIRE, malfang: MALFANG,
+    };
+    const s = spriteMap[name];
+    if (!s) return;
+    // Idle bob animation
+    const bob = Math.sin(frame * 0.1) * (scale * 0.3) | 0;
+    draw(ctx, s, x, y + bob, scale);
+    // Draw bat for Erwan
+    if (name === 'erwan') {
+      draw(ctx, BAT, x + s[0].length * scale - scale, y + scale - (frame % 20 > 10 ? scale : 0), 2);
+    }
+  }
+
+  function drawDragon(ctx, stage, x, y, scale=4, frame=0) {
+    const s = DRAGONS[Math.min(stage, 4)];
+    const bob = Math.sin(frame * 0.08) * (scale * 0.4) | 0;
+    // Glow effect for freed dragon
+    if (stage >= 2) {
+      ctx.shadowColor = stage >= 4 ? '#ffd700' : '#2ecc40';
+      ctx.shadowBlur = 8;
+    }
+    draw(ctx, s, x, y + bob, scale);
+    ctx.shadowBlur = 0;
+  }
+
+  function drawFlag(ctx, lang, cx, cy) {
+    if (lang === 'fr') {
+      const w = 90, h = 60;
+      ctx.fillStyle = '#002395'; ctx.fillRect(cx - w/2, cy - h/2, w/3, h);
+      ctx.fillStyle = '#fff';    ctx.fillRect(cx - w/2 + w/3, cy - h/2, w/3, h);
+      ctx.fillStyle = '#ED2939'; ctx.fillRect(cx - w/2 + 2*w/3, cy - h/2, w/3, h);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(cx - w/2, cy - h/2, w, h);
+    } else {
+      const w = 90, h = 60;
+      ctx.fillStyle = '#B22234'; ctx.fillRect(cx - w/2, cy - h/2, w, h);
+      for (let s=0; s<6; s++) {
+        if (s%2===0) { ctx.fillStyle = '#fff'; ctx.fillRect(cx - w/2, cy - h/2 + s*(h/7), w, h/7); }
+      }
+      ctx.fillStyle = '#3C3B6E'; ctx.fillRect(cx - w/2, cy - h/2, w*0.4, h*0.5);
+    }
+  }
+
+  // ── 2CV vintage car ──────────────────────────────────────
+  function drawCar(ctx, x, y, scale=3) {
+    const car = [
+      [_,_,GR,GR,GR,GR,GR,GR,_,_],
+      [_,GR,Y,  Y,  Y,  Y,  Y,  Y, GR,_],
+      [GR,Y, LB, LB, Y,  Y, LB, LB,Y, GR],
+      [GR,Y, Y,  Y,  Y,  Y,  Y,  Y, Y, GR],
+      [GR,Y, Y,  Y,  Y,  Y,  Y,  Y, Y, GR],
+      [_,GR,K,  GR, GR, GR, GR, K,  GR,_],
+      [_,_,K,  K,  _,  _,  K,  K,  _,_],
+    ];
+    draw(ctx, car, x, y, scale);
+    // Wheels
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(x + 2*scale, y + 7*scale, scale*1.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 7*scale, y + 7*scale, scale*1.5, 0, Math.PI*2); ctx.fill();
+  }
+
+  // ── Stars / confetti animation helpers ───────────────────
+  function spawnCelebration(container) {
+    const colors = ['#ffd700','#ff6b00','#2ecc40','#006bff','#e74c3c','#9b59b6'];
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-particle';
+      p.style.cssText = `
+        left: ${Math.random()*100}%;
+        top: ${Math.random()*20}%;
+        background: ${colors[i % colors.length]};
+        animation-duration: ${0.8 + Math.random()*1.2}s;
+        animation-delay: ${Math.random()*0.3}s;
+        transform: rotate(${Math.random()*360}deg);
+        width: ${6 + Math.random()*8}px;
+        height: ${6 + Math.random()*8}px;
+      `;
+      container.appendChild(p);
+      setTimeout(() => p.remove(), 2000);
+    }
+  }
+
+  return { draw, drawCharacter, drawDragon, drawBackground, drawFlag, drawCar, spawnCelebration };
+})();
+
+
+/* ═══ engine.js ═══ */
+/* ============================================================
+   GAME ENGINE — State, Scene Management, Exercise System
+   ============================================================ */
+
+// ── Global Game State ────────────────────────────────────────
+const GS = {
+  playerName: 'Erwan',
+  dragonName: '',
+  difficulty: 'medium',    // 'easy' | 'medium' | 'hard'
+  stars: 0,
+  hearts: 3,
+  actIndex: 0,             // 0-4 = acts 1-5
+  sceneQueue: [],          // upcoming scenes
+  journal: [],             // { label, text }
+  dragonStage: 0,          // 0-4
+  frame: 0,
+  paused: false,
+  animFrame: null,
+};
+
+// ── DOM refs ─────────────────────────────────────────────────
+const DOM = {};
+
+// ── Initialize DOM refs ──────────────────────────────────────
+function initDOM() {
+  DOM.hudHearts  = document.getElementById('hud-hearts');
+  DOM.hudStars   = document.getElementById('hud-stars');
+  DOM.hudAct     = document.getElementById('hud-act');
+  DOM.hudLevel   = document.getElementById('hud-level');
+  DOM.mainCanvas = document.getElementById('main-canvas');
+  DOM.ctx        = DOM.mainCanvas.getContext('2d');
+  DOM.dragonCanvas = document.getElementById('dragon-canvas');
+  DOM.dragonCtx    = DOM.dragonCanvas.getContext('2d');
+  DOM.dragonName   = document.getElementById('dragon-name-display');
+  DOM.dragonStatus = document.getElementById('dragon-status');
+  DOM.dragonMood   = document.getElementById('dragon-mood');
+  DOM.uiOverlay    = document.getElementById('ui-overlay');
+  DOM.flagAnnounce = document.getElementById('flag-announce');
+  DOM.flagEmoji    = document.getElementById('flag-emoji');
+  DOM.celebration  = document.getElementById('celebration');
+  DOM.transOverlay = document.getElementById('transition-overlay');
+  DOM.transIcon    = document.getElementById('transition-icon');
+  DOM.pinModal     = document.getElementById('pin-modal');
+}
+
+// ── HUD Update ───────────────────────────────────────────────
+function updateHUD() {
+  DOM.hudHearts.textContent = '❤️'.repeat(GS.hearts) + '🖤'.repeat(3 - GS.hearts);
+  DOM.hudStars.textContent  = `⭐ ${GS.stars}`;
+  const actNames = ['Act 1: Brooklyn','Act 2: Avion','Act 3: Paris','Act 4: Loire','Act 5: Bretagne'];
+  DOM.hudAct.textContent = actNames[GS.actIndex] || '';
+  const levels = { easy:'⚔️', medium:'⚔️⚔️', hard:'⚔️⚔️⚔️' };
+  DOM.hudLevel.textContent = levels[GS.difficulty];
+  // Dragon panel
+  DOM.dragonName.textContent = GS.dragonName ? `🐉 ${GS.dragonName}` : '🐉 ???';
+  const statuses = [
+    'Emprisonné... 😢', 'Encore enchaîné... 😟', 'Un peu libre ! 😊',
+    'Presque sauvé ! 😄', 'Libre et majestueux ! 🎉'
+  ];
+  DOM.dragonStatus.textContent = statuses[GS.dragonStage] || '';
+  DOM.dragonMood.textContent = GS.dragonStage >= 2 ? '😊' : '😢';
+}
+
+// ── Dragon canvas render ─────────────────────────────────────
+function renderDragonPanel() {
+  const c = DOM.dragonCanvas;
+  const ctx = DOM.dragonCtx;
+  c.width = 72; c.height = 72;
+  ctx.clearRect(0, 0, 72, 72);
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, 72, 72);
+  Sprites.drawDragon(ctx, GS.dragonStage, 4, 4, 4, GS.frame);
+}
+
+// ── Main animation loop ──────────────────────────────────────
+function gameLoop() {
+  GS.frame++;
+  resizeCanvas();
+  renderDragonPanel();
+  updateHUD();
+  GS.animFrame = requestAnimationFrame(gameLoop);
+}
+
+function resizeCanvas() {
+  const c = DOM.mainCanvas;
+  const area = document.getElementById('canvas-area');
+  if (c.width !== area.clientWidth || c.height !== area.clientHeight) {
+    c.width  = area.clientWidth;
+    c.height = area.clientHeight;
+  }
+}
+
+// ── Screen management ────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  DOM.uiOverlay.classList.add('active');
+  const el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+function hideAllScreens() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  DOM.uiOverlay.classList.remove('active');
+}
+
+// ── Flag announcement ────────────────────────────────────────
+function showFlag(lang) {
+  return new Promise(resolve => {
+    DOM.flagEmoji.textContent = lang === 'fr' ? '🇫🇷' : '🇺🇸';
+    DOM.flagAnnounce.classList.add('show');
+    Audio8bit.play(lang === 'fr' ? 'langFR' : 'langEN');
+    setTimeout(() => {
+      DOM.flagAnnounce.classList.remove('show');
+      setTimeout(resolve, 200);
+    }, 1100);
+  });
+}
+
+// ── Celebration ───────────────────────────────────────────────
+function celebrate(addStars = 1) {
+  GS.stars += addStars;
+  Audio8bit.play('correct');
+  Sprites.spawnCelebration(DOM.celebration);
+  for (let i = 0; i < addStars; i++) {
+    setTimeout(() => Audio8bit.play('star'), i * 100);
+  }
+}
+
+// ── Heart loss ───────────────────────────────────────────────
+function loseHeart() {
+  if (GS.hearts <= 0) return;
+  GS.hearts--;
+  Audio8bit.play('heartLost');
+  updateHUD();
+  if (GS.hearts === 0) {
+    setTimeout(() => showGameOver(), 600);
+    return true; // game over
+  }
+  return false;
+}
+
+function showGameOver() {
+  document.getElementById('gameover-stars').textContent = `⭐ ${GS.stars} étoiles Knicks !`;
+  showScreen('screen-gameover');
+}
+
+// ── Transition overlay ────────────────────────────────────────
+function doTransition(icon, duration = 1000) {
+  return new Promise(resolve => {
+    DOM.transIcon.textContent = icon;
+    DOM.transOverlay.classList.add('show');
+    Audio8bit.play('transition');
+    setTimeout(() => {
+      DOM.transOverlay.classList.remove('show');
+      resolve();
+    }, duration);
+  });
+}
+
+// ── Dragon evolution ──────────────────────────────────────────
+function evolveDragon() {
+  if (GS.dragonStage < 4) {
+    GS.dragonStage++;
+    Audio8bit.play('dragonGrow');
+    updateHUD();
+  }
+}
+
+// ── Journal ────────────────────────────────────────────────────
+function addToJournal(label, text) {
+  if (text && text.trim()) GS.journal.push({ label, text: text.trim() });
+}
+
+function showJournal() {
+  const list = document.getElementById('journal-list');
+  list.innerHTML = '';
+  if (GS.journal.length === 0) {
+    list.innerHTML = '<div class="journal-entry" style="color:#666;">Rien encore écrit...</div>';
+  } else {
+    GS.journal.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'journal-entry';
+      div.innerHTML = `<div class="journal-entry-label">${entry.label}</div><div>${entry.text}</div>`;
+      list.appendChild(div);
+    });
+  }
+  showScreen('screen-journal');
+}
+
+// ── PIN & Parent Settings ─────────────────────────────────────
+function openParentMenu() {
+  DOM.pinModal.classList.add('show');
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('settings-panel').classList.remove('show');
+}
+function checkPin() {
+  const val = document.getElementById('pin-input').value;
+  if (val === '1234') {
+    document.getElementById('pin-section').style.display = 'none';
+    document.getElementById('settings-panel').classList.add('show');
+    updateDifficultyButtons();
+  } else {
+    document.getElementById('pin-error').textContent = 'Code incorrect !';
+    Audio8bit.play('wrong');
+  }
+}
+function setDifficulty(d) {
+  GS.difficulty = d;
+  updateDifficultyButtons();
+  Audio8bit.play('click');
+}
+function updateDifficultyButtons() {
+  document.querySelectorAll('.difficulty-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.diff === GS.difficulty);
+  });
+}
+
+// ── Exercise Engine ────────────────────────────────────────────
+//
+// exerciseDef = {
+//   lang: 'fr' | 'en',
+//   type: 'mcq' | 'fillblanks' | 'typing' | 'numpad' | 'dragdrop' | 'journal',
+//   title: string,
+//   question: string,
+//   // MCQ:
+//   choices: [{text, correct}],
+//   // fillblanks: segments with gaps
+//   segments: [{text, isBlank, answer}],
+//   // typing: target string
+//   answer: string,
+//   // numpad: number answer
+//   answer: number,
+//   // dragdrop: words to order
+//   words: string[], correctOrder: string[],
+//   // journal: prompt, store in journal
+//   journalLabel: string,
+//   // on complete callback
+//   onComplete: fn,
+// }
+
+let currentExercise = null;
+let exerciseAttempts = 0;
+
+function runExercise(def) {
+  return new Promise(async resolve => {
+    await showFlag(def.lang || 'fr');
+    currentExercise = def;
+    exerciseAttempts = 0;
+    def._resolve = resolve;
+    renderExercise(def);
+    showScreen('screen-exercise');
+  });
+}
+
+function renderExercise(def) {
+  const panel = document.getElementById('exercise-panel');
+  const levels = { easy:'⚔️ Simple', medium:'⚔️⚔️ Moyen', hard:'⚔️⚔️⚔️ Complexe' };
+  panel.innerHTML = `
+    <div class="exercise-title">${def.title} <span style="float:right;font-size:11px">${levels[GS.difficulty]}</span></div>
+    <div class="exercise-question">${def.question}</div>
+    <div id="ex-content"></div>
+    <div class="exercise-feedback" id="ex-feedback"></div>
+    <div id="ex-actions"></div>
+  `;
+  const content = document.getElementById('ex-content');
+  const actions = document.getElementById('ex-actions');
+
+  switch (def.type) {
+    case 'mcq':       renderMCQ(def, content); break;
+    case 'fillblanks': renderFillBlanks(def, content, actions); break;
+    case 'typing':    renderTyping(def, content, actions); break;
+    case 'numpad':    renderNumpad(def, content, actions); break;
+    case 'dragdrop':  renderDragDrop(def, content, actions); break;
+    case 'journal':   renderJournal(def, content, actions); break;
+  }
+}
+
+function setFeedback(msg, type = '') {
+  const fb = document.getElementById('ex-feedback');
+  if (fb) { fb.textContent = msg; fb.className = 'exercise-feedback feedback-' + type; }
+}
+
+// ── MCQ ───────────────────────────────────────────────────────
+function renderMCQ(def, content) {
+  const colMap = { 2:'cols-2', 3:'cols-3', 4:'cols-4' };
+  const n = def.choices.length;
+  const grid = document.createElement('div');
+  grid.className = `choices-grid ${colMap[n] || 'cols-2'}`;
+  def.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = ch.text;
+    btn.onclick = () => handleMCQChoice(def, ch, btn, grid);
+    grid.appendChild(btn);
+  });
+  content.appendChild(grid);
+}
+
+let mcqQueue = []; // for multi-question MCQ sequences
+function handleMCQChoice(def, choice, btn, grid) {
+  Audio8bit.play('click');
+  const allBtns = grid.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  if (choice.correct) {
+    btn.classList.add('correct');
+    celebrate();
+    setFeedback('✅ ' + (def.correctMsg || 'Bravo !'), 'correct');
+    setTimeout(() => {
+      if (def._mcqNext) def._mcqNext();
+      else def._resolve();
+    }, 900);
+  } else {
+    btn.classList.add('wrong');
+    exerciseAttempts++;
+    Audio8bit.play('wrong');
+    const hints = ['Presque !', 'Encore un essai !', 'Tu y es presque !'];
+    setFeedback('❌ ' + hints[Math.min(exerciseAttempts-1, 2)], 'wrong');
+    if (exerciseAttempts >= 3) {
+      // Show correct answer
+      allBtns.forEach(b => {
+        const ch = def.choices.find(c => c.text === b.textContent);
+        if (ch?.correct) b.classList.add('correct');
+      });
+      setFeedback('💡 La bonne réponse est surlignée en vert.', 'hint');
+      setTimeout(() => {
+        loseHeart();
+        if (GS.hearts > 0) {
+          allBtns.forEach(b => { b.disabled = false; b.classList.remove('wrong','correct'); });
+          exerciseAttempts = 0;
+          if (def._mcqNext) def._mcqNext();
+          else def._resolve();
+        }
+      }, 2000);
+    } else {
+      setTimeout(() => {
+        allBtns.forEach(b => { b.disabled = false; b.classList.remove('wrong'); });
+      }, 800);
+    }
+  }
+}
+
+// Multi-question MCQ: runs questions sequentially
+function runMCQSequence(questions, title, lang) {
+  return new Promise(resolve => {
+    let qi = 0;
+    function nextQ() {
+      if (qi >= questions.length) { resolve(); return; }
+      const q = questions[qi++];
+      const def = { ...q, title, lang, type:'mcq' };
+      def._resolve = resolve;
+      def._mcqNext = nextQ;
+      exerciseAttempts = 0;
+      renderExercise(def);
+      showScreen('screen-exercise');
+    }
+    nextQ();
+  });
+}
+
+// ── Fill Blanks ───────────────────────────────────────────────
+function renderFillBlanks(def, content, actions) {
+  const area = document.createElement('div');
+  area.className = 'fill-blank-area';
+  const inputs = [];
+  def.segments.forEach(seg => {
+    if (seg.isBlank) {
+      const inp = document.createElement('input');
+      inp.className = 'fill-input';
+      inp.style.width = Math.max(60, seg.answer.length * 18 + 20) + 'px';
+      inp.dataset.answer = seg.answer.toLowerCase();
+      inp.setAttribute('autocomplete','off');
+      inp.setAttribute('autocapitalize','none');
+      inputs.push(inp);
+      area.appendChild(inp);
+    } else {
+      const span = document.createElement('span');
+      span.className = 'fill-word';
+      span.textContent = seg.text + ' ';
+      area.appendChild(span);
+    }
+  });
+  content.appendChild(area);
+
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.textContent = 'Vérifier ✓';
+  btn.style.marginTop = '12px';
+  btn.onclick = () => checkFillBlanks(def, inputs);
+  actions.appendChild(btn);
+
+  if (inputs[0]) setTimeout(() => inputs[0].focus(), 100);
+}
+
+function checkFillBlanks(def, inputs) {
+  let allOk = true;
+  inputs.forEach(inp => {
+    const val = inp.value.toLowerCase().replace(/\s+/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const ans = inp.dataset.answer.normalize('NFD').replace(/[̀-ͯ]/g,'');
+    if (val === ans) {
+      inp.style.borderColor = '#2ecc40';
+    } else {
+      inp.style.borderColor = '#e74c3c';
+      allOk = false;
+    }
+  });
+  if (allOk) {
+    celebrate();
+    setFeedback('✅ Parfait !', 'correct');
+    // Add to journal if requested
+    if (def.journalLabel) {
+      const fullText = def.segments.map(s => s.isBlank
+        ? inputs.find(i => i.dataset.answer === s.answer.toLowerCase())?.value || s.answer
+        : s.text
+      ).join('');
+      addToJournal(def.journalLabel, fullText);
+    }
+    setTimeout(() => def._resolve(), 900);
+  } else {
+    exerciseAttempts++;
+    Audio8bit.play('wrong');
+    const msgs = ['Presque !', 'Encore un essai !', 'Tu y es presque !'];
+    setFeedback('❌ ' + msgs[Math.min(exerciseAttempts-1, 2)], 'wrong');
+    if (exerciseAttempts >= 3) {
+      inputs.forEach(inp => { inp.style.borderColor = '#ffd700'; inp.value = inp.dataset.answer; });
+      setFeedback('💡 Voici la bonne réponse !', 'hint');
+      setTimeout(() => { loseHeart(); if (GS.hearts > 0) def._resolve(); }, 2000);
+    }
+  }
+}
+
+// ── Typing ────────────────────────────────────────────────────
+function renderTyping(def, content, actions) {
+  const area = document.createElement('div');
+  area.className = 'full-input-area';
+  const inp = document.createElement('input');
+  inp.className = 'full-input';
+  inp.setAttribute('autocomplete','off');
+  inp.setAttribute('autocapitalize','none');
+  inp.placeholder = def.placeholder || '';
+  if (def.hint) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:13px;color:#aaa;margin-bottom:6px;';
+    hint.textContent = def.hint;
+    content.appendChild(hint);
+  }
+  area.appendChild(inp);
+  content.appendChild(area);
+
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.textContent = 'Vérifier ✓';
+  btn.style.marginTop = '12px';
+  btn.onclick = () => checkTyping(def, inp);
+  actions.appendChild(btn);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkTyping(def, inp); });
+  setTimeout(() => inp.focus(), 100);
+}
+
+function checkTyping(def, inp) {
+  const val = inp.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const ans = def.answer.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const alts = (def.alternatives || []).map(a => a.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''));
+  if (val === ans || alts.includes(val)) {
+    inp.style.borderColor = '#2ecc40';
+    celebrate();
+    setFeedback('✅ Bravo !', 'correct');
+    if (def.journalLabel) addToJournal(def.journalLabel, inp.value.trim());
+    setTimeout(() => def._resolve(), 900);
+  } else {
+    exerciseAttempts++;
+    inp.style.borderColor = '#e74c3c';
+    Audio8bit.play('wrong');
+    const msgs = ['Presque !', 'Encore un essai !', 'Tu y es presque !'];
+    setFeedback('❌ ' + msgs[Math.min(exerciseAttempts-1, 2)], 'wrong');
+    if (exerciseAttempts >= 3) {
+      inp.value = def.answer;
+      inp.style.borderColor = '#ffd700';
+      setFeedback('💡 Voici la bonne réponse !', 'hint');
+      setTimeout(() => { loseHeart(); if (GS.hearts > 0) def._resolve(); }, 2000);
+    }
+  }
+}
+
+// ── Numpad ────────────────────────────────────────────────────
+function renderNumpad(def, content, actions) {
+  const area = document.createElement('div');
+  area.className = 'numpad-area';
+  const display = document.createElement('div');
+  display.className = 'numpad-display';
+  display.textContent = '_';
+  let current = '';
+
+  const grid = document.createElement('div');
+  grid.className = 'numpad-grid';
+  ['7','8','9','4','5','6','1','2','3','⌫','0','✓'].forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'numpad-btn';
+    btn.textContent = k;
+    btn.onclick = () => {
+      Audio8bit.play('click');
+      if (k === '⌫') { current = current.slice(0,-1); }
+      else if (k === '✓') { checkNumpad(def, current, display); return; }
+      else if (current.length < 6) { current += k; }
+      display.textContent = current || '_';
+    };
+    grid.appendChild(btn);
+  });
+
+  area.appendChild(display);
+  area.appendChild(grid);
+  content.appendChild(area);
+}
+
+function checkNumpad(def, val, display) {
+  const num = parseInt(val, 10);
+  if (num === def.answer) {
+    display.style.borderColor = '#2ecc40';
+    celebrate();
+    setFeedback('✅ ' + (def.correctMsg || 'Parfait !'), 'correct');
+    setTimeout(() => def._resolve(), 900);
+  } else {
+    exerciseAttempts++;
+    display.style.borderColor = '#e74c3c';
+    Audio8bit.play('wrong');
+    const msgs = ['Presque !', 'Encore un essai !', 'Tu y es presque !'];
+    setFeedback('❌ ' + msgs[Math.min(exerciseAttempts-1, 2)], 'wrong');
+    if (exerciseAttempts >= 3) {
+      display.textContent = String(def.answer);
+      display.style.borderColor = '#ffd700';
+      setFeedback('💡 La bonne réponse est ' + def.answer, 'hint');
+      setTimeout(() => { loseHeart(); if (GS.hearts > 0) def._resolve(); }, 2200);
+    } else {
+      setTimeout(() => { display.style.borderColor = ''; }, 600);
+    }
+  }
+}
+
+// ── Drag & Drop word ordering ─────────────────────────────────
+function renderDragDrop(def, content, actions) {
+  // Source zone (shuffled words)
+  const srcZone  = document.createElement('div');
+  srcZone.className = 'drag-zone';
+  srcZone.id = 'dd-source';
+  const destZone = document.createElement('div');
+  destZone.className = 'drag-zone target-zone';
+  destZone.id = 'dd-dest';
+
+  const label1 = document.createElement('div');
+  label1.style.cssText = 'font-size:12px;color:#aaa;margin-top:8px;';
+  label1.textContent = '📦 Mots disponibles :';
+  const label2 = document.createElement('div');
+  label2.style.cssText = 'font-size:12px;color:#aaa;margin-top:12px;';
+  label2.textContent = '✏️ Ta phrase :';
+
+  content.appendChild(label1);
+  content.appendChild(srcZone);
+  content.appendChild(label2);
+  content.appendChild(destZone);
+
+  // Shuffle and render
+  const shuffled = [...def.words].sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => srcZone.appendChild(makeWordChip(w, srcZone, destZone)));
+
+  // Touch/mouse drag implementation
+  let dragging = null, ghost = null, originZone = null;
+
+  function makeWordChip(word, src, dest) {
+    const chip = document.createElement('div');
+    chip.className = 'drag-word';
+    chip.textContent = word;
+    chip.dataset.word = word;
+
+    const startDrag = (clientX, clientY) => {
+      dragging = chip;
+      originZone = chip.parentElement;
+      chip.classList.add('dragging');
+      ghost = chip.cloneNode(true);
+      ghost.style.cssText = `position:fixed;pointer-events:none;opacity:0.85;z-index:999;
+        left:${clientX - 30}px;top:${clientY - 20}px;`;
+      document.body.appendChild(ghost);
+    };
+
+    chip.addEventListener('mousedown', e => {
+      e.preventDefault();
+      startDrag(e.clientX, e.clientY);
+    });
+    chip.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      startDrag(t.clientX, t.clientY);
+    }, { passive: true });
+
+    return chip;
+  }
+
+  const moveGhost = (cx, cy) => {
+    if (ghost) { ghost.style.left = cx - 30 + 'px'; ghost.style.top  = cy - 20 + 'px'; }
+  };
+  const endDrag = (cx, cy) => {
+    if (!dragging) return;
+    ghost?.remove(); ghost = null;
+    dragging.classList.remove('dragging');
+    const target = document.elementFromPoint(cx, cy)?.closest('.drag-zone');
+    if (target && target !== dragging.parentElement) {
+      target.appendChild(dragging);
+    }
+    dragging = null;
+  };
+
+  document.addEventListener('mousemove', e => moveGhost(e.clientX, e.clientY));
+  document.addEventListener('mouseup',   e => endDrag(e.clientX, e.clientY));
+  document.addEventListener('touchmove', e => {
+    const t = e.touches[0]; moveGhost(t.clientX, t.clientY);
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const t = e.changedTouches[0]; endDrag(t.clientX, t.clientY);
+  });
+
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.textContent = 'Vérifier ✓';
+  btn.style.marginTop = '12px';
+  btn.onclick = () => {
+    const placed = [...destZone.querySelectorAll('.drag-word')].map(c => c.dataset.word);
+    const correct = JSON.stringify(placed) === JSON.stringify(def.correctOrder);
+    if (correct) {
+      celebrate();
+      setFeedback('✅ Parfaite phrase !', 'correct');
+      setTimeout(() => def._resolve(), 900);
+    } else {
+      exerciseAttempts++;
+      Audio8bit.play('wrong');
+      const msgs = ['Presque !', 'Réessaie !', 'Tu y es presque !'];
+      setFeedback('❌ ' + msgs[Math.min(exerciseAttempts-1, 2)], 'wrong');
+      if (exerciseAttempts >= 3) {
+        // Show correct order
+        destZone.innerHTML = '';
+        srcZone.innerHTML = '';
+        def.correctOrder.forEach(w => {
+          const chip = document.createElement('div');
+          chip.className = 'drag-word';
+          chip.textContent = w;
+          chip.style.background = '#1a7a28';
+          destZone.appendChild(chip);
+        });
+        setFeedback('💡 Voici la bonne ordre !', 'hint');
+        setTimeout(() => { loseHeart(); if (GS.hearts > 0) def._resolve(); }, 2200);
+      }
+    }
+  };
+  actions.appendChild(btn);
+}
+
+// ── Journal entry ─────────────────────────────────────────────
+function renderJournal(def, content, actions) {
+  if (def.hint) {
+    const h = document.createElement('div');
+    h.style.cssText = 'color:#aaa;font-size:13px;margin-bottom:8px;';
+    h.innerHTML = def.hint;
+    content.appendChild(h);
+  }
+  const area = document.createElement('textarea');
+  area.style.cssText = `width:100%;min-height:90px;background:#0a0a1a;border:2px solid #0f3460;
+    color:#e0e0ff;font-family:'Courier New',monospace;font-size:16px;padding:10px;
+    border-radius:3px;resize:vertical;outline:none;`;
+  area.placeholder = def.placeholder || 'Écris ici...';
+  content.appendChild(area);
+
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.textContent = 'Enregistrer ✓';
+  btn.style.marginTop = '12px';
+  btn.onclick = () => {
+    const val = area.value.trim();
+    if (val.length < 2) {
+      setFeedback('Écris quelque chose !', 'wrong');
+      return;
+    }
+    addToJournal(def.journalLabel || 'Note', val);
+    celebrate();
+    setFeedback('✅ Super ! Enregistré dans ton journal.', 'correct');
+    setTimeout(() => def._resolve(), 900);
+  };
+  actions.appendChild(btn);
+  setTimeout(() => area.focus(), 100);
+}
+
+// ── Scene narration helper ─────────────────────────────────────
+function runNarration(lines) {
+  // lines: [{speaker, text, bg, characters:[{name,x,y}]}]
+  return new Promise(resolve => {
+    let idx = 0;
+    const screen = document.getElementById('screen-narration');
+    const sceneCanvas = document.getElementById('scene-canvas');
+    const scCtx = sceneCanvas.getContext('2d');
+    const speakerEl = document.getElementById('narr-speaker');
+    const textEl    = document.getElementById('narr-text');
+    const nextBtn   = document.getElementById('narr-next');
+
+    function showLine() {
+      if (idx >= lines.length) { resolve(); return; }
+      const line = lines[idx];
+      // Draw background
+      sceneCanvas.width  = sceneCanvas.offsetWidth  || 400;
+      sceneCanvas.height = sceneCanvas.offsetHeight || 200;
+      const W = sceneCanvas.width, H = sceneCanvas.height;
+      Sprites.drawBackground(scCtx, W, H, line.bg || 'brooklyn');
+      // Draw characters
+      (line.characters || []).forEach(ch => {
+        const x = (ch.x || 0.5) * W - 24;
+        const y = (ch.y || 0.6) * H - 48;
+        if (ch.name === 'dragon') Sprites.drawDragon(scCtx, GS.dragonStage, x, y, 3, GS.frame);
+        else Sprites.drawCharacter(scCtx, ch.name, x, y, 3, GS.frame);
+      });
+
+      speakerEl.textContent = line.speaker || '';
+      textEl.textContent    = '';
+      // Typewriter effect
+      let ci = 0;
+      const txt = line.text;
+      const iv = setInterval(() => {
+        textEl.textContent = txt.slice(0, ++ci);
+        if (ci >= txt.length) clearInterval(iv);
+      }, 28);
+
+      nextBtn.onclick = () => { clearInterval(iv); textEl.textContent = txt; idx++; showLine(); };
+    }
+
+    showScreen('screen-narration');
+    setTimeout(showLine, 50);
+  });
+}
+
+
+/* ═══ act1-brooklyn.js ═══ */
+/* ============================================================
+   ACT 1 — BROOKLYN
+   ============================================================ */
+
+async function runAct1() {
+  GS.actIndex = 0;
+  await doTransition('🗽', 1200);
+
+  // ── Scene 1.1 — Erwan's Room ─────────────────────────────
+  await runNarration([
+    {
+      speaker: '📜 Parchemin magique',
+      text: 'Un parchemin magique apparaît sur le bureau d\'Erwan... Il vient de Mamiya !',
+      bg: 'brooklyn',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+    {
+      speaker: '💌 Mamiya',
+      text: `Un dragon bébé est emprisonné par le terrible Sorcier Malfang dans un château de la Loire. Toi seul peux le sauver, ${GS.playerName} ! Tu pars en France tout seul, comme un grand chevalier !`,
+      bg: 'brooklyn',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 1 — Reading FR (MCQ sequence)
+  await runMCQSequence([
+    {
+      question: 'De quelle couleur est le maillot des Knicks sur le poster ?',
+      choices: [
+        { text: 'Rouge et blanc', correct: false },
+        { text: 'Orange et bleu', correct: true  },
+        { text: 'Vert et noir',   correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: 'Jaune et violet', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Oui ! Orange et bleu, les couleurs des New York Knicks !',
+    },
+    {
+      question: 'Qui a envoyé le parchemin magique à Erwan ?',
+      choices: [
+        { text: 'Gabriel',       correct: false },
+        { text: 'Mamiya',        correct: true  },
+        { text: 'Papi Jean-Marie', correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: 'Le dragon', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Oui ! C\'est Mamiya, la grand-mère de Bretagne !',
+    },
+    {
+      question: 'Où est emprisonné le dragon ?',
+      choices: [
+        { text: 'À Brooklyn',             correct: false },
+        { text: 'Dans un château de la Loire', correct: true },
+        { text: 'En Bretagne',            correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: 'À Paris', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Bravo ! Dans un château de la Loire !',
+    },
+  ], '📖 Lecture — La chambre d\'Erwan', 'fr');
+
+  // Exercise 2 — Math FR
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '🔢 Calcul — Le sac de voyage',
+    question: `Tu prépares ton sac pour la grande aventure ! Tu as 12 étoiles Knicks dans ta chambre, tu en mets 7 dans ton sac. Combien en reste-t-il dans ta chambre ?`,
+    answer: 5,
+    correctMsg: '12 − 7 = 5. Exactement !',
+  });
+
+  // ── Scene 1.2 — PS58, au revoir les amis ─────────────────
+  await runNarration([
+    {
+      speaker: '🏫 Devant PS58',
+      text: 'Gabriel, Adi et Claire attendent devant l\'école PS58. Ils veulent dire au revoir à leur ami chevalier !',
+      bg: 'school',
+      characters: [
+        { name:'gabriel', x:0.3, y:0.65 },
+        { name:'adi',     x:0.5, y:0.65 },
+        { name:'claire',  x:0.7, y:0.65 },
+      ],
+    },
+    {
+      speaker: '🛡️ Gabriel',
+      text: 'Je te donne mon bouclier magique ! Il a la toile de Spider-Man dessus. Sois courageux !',
+      bg: 'school',
+      characters: [{ name:'gabriel', x:0.4, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+    {
+      speaker: '🧣 Adi',
+      text: 'Et moi je te donne ma cape violette ! Elle te rendra invisible si tu as peur.',
+      bg: 'school',
+      characters: [{ name:'adi', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+    {
+      speaker: '🧪 Claire',
+      text: 'Et voilà une fiole de courage ! Bois-la si le sorcier te fait peur. Bon voyage !',
+      bg: 'school',
+      characters: [{ name:'claire', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 3 — Writing FR (fill blanks)
+  await runExercise({
+    lang: 'fr',
+    type: 'fillblanks',
+    title: '✏️ Écriture — Au revoir !',
+    question: 'Complète les mots que tes amis te disent en partant :',
+    segments: GS.difficulty === 'easy'
+      ? [
+          { text: 'Bon voya', isBlank: false },
+          { text: 'ge', isBlank: true,  answer: 'ge' },
+          { text: '! Sois cou', isBlank: false },
+          { text: 'ra', isBlank: true, answer: 'ra' },
+          { text: 'geux !', isBlank: false },
+        ]
+      : [
+          { text: 'Bon ', isBlank: false },
+          { text: 'voyage', isBlank: true, answer: 'voyage' },
+          { text: '! Sois ', isBlank: false },
+          { text: 'courageux', isBlank: true, answer: 'courageux' },
+          { text: '!', isBlank: false },
+        ],
+  });
+
+  // Exercise 3b — Type school name
+  await runExercise({
+    lang: 'fr',
+    type: 'typing',
+    title: '✏️ Écriture — Ton école',
+    question: 'Comment s\'appelle ton école à Brooklyn ? Tape son nom :',
+    answer: 'PS58',
+    alternatives: ['ps 58', 'ps58', 'P.S. 58'],
+    placeholder: 'Tape le nom de l\'école...',
+    hint: '💡 C\'est PS suivi d\'un nombre...',
+  });
+
+  // Exercise 4 — Reading FR (drag-drop)
+  await runExercise({
+    lang: 'fr',
+    type: 'dragdrop',
+    title: '📖 Message de Gabriel — Remet les mots en ordre',
+    question: 'Gabriel t\'a laissé un message secret ! Remets les mots dans le bon ordre :',
+    words: ['Tu', 'vas', 'sauver', 'le', 'dragon', 'brave', 'chevalier'],
+    correctOrder: ['Tu', 'vas', 'sauver', 'le', 'dragon', 'brave', 'chevalier'],
+  });
+
+  // Mini celebration
+  await runNarration([
+    {
+      speaker: '🎺 Fanfare Knicks !',
+      text: 'Gabriel, Adi et Claire font coucou ! Une fanfare 8-bit retentit ! Le chevalier Erwan part à l\'aventure !',
+      bg: 'school',
+      characters: [
+        { name:'gabriel', x:0.2, y:0.65 },
+        { name:'adi',     x:0.4, y:0.65 },
+        { name:'claire',  x:0.6, y:0.65 },
+        { name:'erwan',   x:0.82, y:0.65 },
+      ],
+    },
+  ]);
+  Audio8bit.play('levelUp');
+  evolveDragon(); // stage 0 → 1
+
+  await runAct2();
+}
+
+
+/* ═══ act2-airplane.js ═══ */
+/* ============================================================
+   ACT 2 — JFK AIRPORT & THE AIRPLANE
+   ============================================================ */
+
+async function runAct2() {
+  GS.actIndex = 1;
+  await doTransition('✈️', 1200);
+
+  // ── Scene 2.1 — JFK Airport ─────────────────────────────
+  await runNarration([
+    {
+      speaker: '🗽 Aéroport JFK',
+      text: `Te voilà à l'aéroport JFK — tout seul, comme un vrai chevalier ! Des panneaux partout, des avions partout... C'est grand comme ta salle de classe fois mille !`,
+      bg: 'airport',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+    {
+      speaker: '📋 Mission',
+      text: 'Tu dois trouver ta porte d\'embarquement. Lis bien les panneaux !',
+      bg: 'airport',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 5 — Reading FR (airport signs)
+  await runMCQSequence([
+    {
+      question: 'Tu cherches ton avion qui part. Quel panneau dois-tu suivre ?',
+      choices: [
+        { text: '🧳 ARRIVÉES',  correct: false },
+        { text: '🛫 DÉPARTS',   correct: true  },
+        { text: '🚌 NAVETTES',  correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '🏨 HÔTELS', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'DÉPARTS ! C\'est là que partent les avions !',
+    },
+    {
+      question: 'Ton billet dit "PORTE 23". Quel panneau suis-tu maintenant ?',
+      choices: [
+        { text: 'Zone B — Portes 40-60', correct: false },
+        { text: 'Zone A — Portes 1-30',  correct: true  },
+        { text: 'Bagages perdus',        correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: 'Zone C — Portes 61-80', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Zone A, portes 1-30 ! La porte 23 est là !',
+    },
+  ], '📖 Lecture — Panneaux de l\'aéroport JFK 🇫🇷', 'fr');
+
+  // Exercise 6 — Math EN (first English exercise!)
+  await runNarration([
+    {
+      speaker: '📢 Attention !',
+      text: 'Le panneau de l\'aéroport est en anglais ! Le drapeau américain va apparaître — c\'est le signal !',
+      bg: 'airport',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+  ]);
+
+  const mathQ6 = GS.difficulty === 'easy'
+    ? 'Your flight leaves at 6pm. It is now 4pm. How many hours until your flight?'
+    : 'Your flight leaves at 6:00pm. It is now 3:30pm. How many minutes until your flight?';
+  const mathA6 = GS.difficulty === 'easy' ? 2 : 150;
+  const mathMsg6 = GS.difficulty === 'easy'
+    ? '6pm − 4pm = 2 hours! Great!'
+    : '3:30pm to 6:00pm = 2 hours 30 min = 150 minutes!';
+
+  await runExercise({
+    lang: 'en',
+    type: 'numpad',
+    title: '🔢 Math — Flight Time 🇺🇸',
+    question: mathQ6,
+    answer: mathA6,
+    correctMsg: mathMsg6,
+  });
+
+  // Exercise 7 — Writing EN
+  await runExercise({
+    lang: 'en',
+    type: GS.difficulty === 'hard' ? 'typing' : 'fillblanks',
+    title: '✏️ Writing — Check-in 🇺🇸',
+    question: GS.difficulty === 'hard'
+      ? `Type your name on the check-in screen and the gate password:`
+      : 'Complete your name on the check-in screen:',
+    ...(GS.difficulty === 'hard'
+      ? {
+          answer: GS.playerName.toUpperCase(),
+          placeholder: 'Type your full name...',
+          hint: `💡 Your name starts with ${GS.playerName[0]}...`,
+        }
+      : {
+          segments: (() => {
+            const name = GS.playerName.toUpperCase();
+            return name.split('').map((ch, i) => ({
+              text: ch,
+              isBlank: i % 2 === 1,
+              answer: i % 2 === 1 ? ch : '',
+            })).filter(s => s.text).map((s, i, arr) => {
+              if (!s.isBlank) return { text: s.text, isBlank: false };
+              return s;
+            });
+          })(),
+        }),
+  });
+
+  // ── Scene 2.2 — In the Airplane ─────────────────────────
+  await runNarration([
+    {
+      speaker: '✈️ Dans l\'avion',
+      text: 'L\'avion décolle ! New York disparaît sous les nuages. Erwan regarde par le hublot. Première fois dans un avion tout seul !',
+      bg: 'plane_interior',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+    {
+      speaker: '👨‍✈️ Steward',
+      text: '"Would you like something to drink, young man?" — Le steward parle anglais ! Erwan répond poliment en français.',
+      bg: 'plane_interior',
+      characters: [{ name:'erwan', x:0.6, y:0.65 }],
+    },
+    {
+      speaker: `⚔️ ${GS.playerName}`,
+      text: '"Oui merci, un jus d\'orange s\'il vous plaît !" Le steward sourit et apporte le jus. Bravo le chevalier !',
+      bg: 'plane_interior',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 8 — Journal FR
+  await runExercise({
+    lang: 'fr',
+    type: 'journal',
+    title: '📔 Journal de bord — Dans l\'avion',
+    question: 'Écris dans ton journal de bord ! Complète les phrases :',
+    hint: `💡 Tu peux écrire: "Je suis dans l'avion. Je vole vers la France. Je vais sauver ${GS.dragonName}."`,
+    placeholder: `Je suis dans l'avion. Je vole vers ___. Je vais sauver ___.`,
+    journalLabel: '✈️ Dans l\'avion',
+  });
+
+  // Exercise 9 — Math FR (flight duration)
+  const flightQ = {
+    easy: { q: 'Le vol dure 7 heures. Tu as déjà volé 3 heures. Combien d\'heures reste-t-il ?', a: 4 },
+    medium: { q: 'L\'avion part à 18h et arrive à 1h du matin (heure de Paris). Combien d\'heures dure le vol ?', a: 7 },
+    hard: { q: `L'avion vole à 900 km/h. Paris est à 5 400 km de New York. Combien d'heures dure le vol ?`, a: 6 },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '🔢 Calcul — Durée du vol',
+    question: flightQ.q,
+    answer: flightQ.a,
+    correctMsg: `Excellent ! La réponse est ${flightQ.a} !`,
+  });
+
+  // Mini-game: Catch cloud syllables to spell the dragon's name
+  await runCloudGame();
+
+  Audio8bit.play('levelUp');
+  await runAct3();
+}
+
+// ── Mini-game: Cloud syllable catcher ────────────────────────
+function runCloudGame() {
+  return new Promise(resolve => {
+    hideAllScreens();
+    const screen = document.getElementById('screen-minigame');
+    screen.classList.add('visible');
+    DOM.uiOverlay.classList.add('active');
+
+    const canvas  = document.getElementById('minigame-canvas');
+    const ctx     = canvas.getContext('2d');
+    const titleEl = document.getElementById('mg-title');
+    const instrEl = document.getElementById('mg-instr');
+
+    // Build target word (dragon name or DRAGON if short)
+    const target = (GS.dragonName || 'DRAGON').toUpperCase().split('');
+    let collected = [];
+    titleEl.textContent = '🌤️ Mini-jeu : Attrape les nuages !';
+    instrEl.textContent = `Attrape les lettres dans l'ordre pour écrire : ${target.join(' - ')}`;
+
+    const clouds = [];
+    let tick = 0;
+
+    function spawnCloud() {
+      const idx = collected.length;
+      if (idx >= target.length) return;
+      // Only spawn the next needed letter
+      clouds.push({
+        x: Math.random() * (canvas.width - 80) + 40,
+        y: -40,
+        letter: target[idx],
+        speed: 0.8 + Math.random() * 0.8,
+        isNext: true,
+      });
+      // Decoys
+      for (let i = 0; i < 2; i++) {
+        const decoy = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random()*26)];
+        clouds.push({
+          x: Math.random() * (canvas.width - 80) + 40,
+          y: -40 - i * 50,
+          letter: decoy,
+          speed: 0.5 + Math.random(),
+          isNext: false,
+        });
+      }
+    }
+
+    function drawCloud(x, y, letter, isNext) {
+      ctx.fillStyle = isNext ? '#fff9c4' : '#e0e0e0';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 36, 22, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = isNext ? '#ffd700' : '#888';
+      ctx.font = 'bold 20px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(letter, x, y);
+    }
+
+    function drawProgress() {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(collected.join(' ') + (collected.length < target.length ? ' _' : ''), canvas.width/2, canvas.height - 30);
+    }
+
+    function handleClick(cx, cy) {
+      for (let i = clouds.length - 1; i >= 0; i--) {
+        const cl = clouds[i];
+        const dx = cx - cl.x, dy = cy - cl.y;
+        if (Math.sqrt(dx*dx+dy*dy) < 38) {
+          if (cl.isNext) {
+            collected.push(cl.letter);
+            clouds.splice(i, 1);
+            Audio8bit.play('star');
+            // Remove all decoys
+            clouds.length = 0;
+            if (collected.length >= target.length) {
+              // Win!
+              setTimeout(() => {
+                screen.classList.remove('visible');
+                celebrate(3);
+                resolve();
+              }, 600);
+              return;
+            }
+            spawnCloud();
+          } else {
+            Audio8bit.play('wrong');
+            // Flash red
+            clouds.splice(i, 1);
+          }
+          return;
+        }
+      }
+    }
+
+    canvas.onclick = e => {
+      const r = canvas.getBoundingClientRect();
+      handleClick(e.clientX - r.left, e.clientY - r.top);
+    };
+    canvas.addEventListener('touchstart', e => {
+      const t = e.touches[0], r = canvas.getBoundingClientRect();
+      handleClick(t.clientX - r.left, t.clientY - r.top);
+    }, { passive: true });
+
+    spawnCloud();
+
+    function loop() {
+      canvas.width  = canvas.offsetWidth  || 400;
+      canvas.height = canvas.offsetHeight || 300;
+      ctx.fillStyle = '#1a3a5c';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      // Clouds bg
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      for (let c=0; c<5; c++) {
+        ctx.beginPath();
+        ctx.ellipse(((tick*0.3+c*120)%canvas.width), (c*60+20)%canvas.height, 60, 25, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      tick++;
+      clouds.forEach(cl => { cl.y += cl.speed; });
+      // Remove clouds that fell off screen
+      for (let i = clouds.length-1; i>=0; i--) {
+        if (clouds[i].y > canvas.height + 50) clouds.splice(i,1);
+      }
+      // If no clouds, spawn next
+      if (clouds.length === 0 && collected.length < target.length) spawnCloud();
+
+      clouds.forEach(cl => drawCloud(cl.x, cl.y, cl.letter, cl.isNext));
+      // Erwan at bottom
+      Sprites.drawCharacter(ctx, 'erwan', canvas.width/2 - 18, canvas.height - 80, 3, tick);
+      drawProgress();
+
+      if (screen.classList.contains('visible')) requestAnimationFrame(loop);
+    }
+    loop();
+  });
+}
+
+
+/* ═══ act3-paris.js ═══ */
+/* ============================================================
+   ACT 3 — PARIS CDG → ORLÉANS
+   ============================================================ */
+
+async function runAct3() {
+  GS.actIndex = 2;
+  await doTransition('🗼', 1200);
+
+  // ── Scene 3.1 — Arrivée à Paris CDG ─────────────────────
+  await runNarration([
+    {
+      speaker: '🛬 Arrivée à Paris !',
+      text: 'L\'avion atterrit à l\'aéroport Charles de Gaulle — CDG pour les initiés ! Erwan regarde par le hublot : la Tour Eiffel au loin, et... la vieille voiture de Papi Jean-Marie dans le parking !',
+      bg: 'paris',
+      characters: [{ name:'erwan', x:0.3, y:0.65 }],
+    },
+    {
+      speaker: '🧓 Papi Jean-Marie',
+      text: `Mon grand chevalier ! Bienvenue en France ! Maminette et moi on t'a apporté des croissants ! Et la 2CV est en pleine forme !`,
+      bg: 'paris',
+      characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+    {
+      speaker: '👵 Maminette',
+      text: 'Oh mon chéri ! Tu as grandi ! Vite, on doit trouver la sortie et prendre la route pour Orléans !',
+      bg: 'paris',
+      characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 10 — Reading FR (CDG signs)
+  await runMCQSequence([
+    {
+      question: 'Tu dois récupérer ta valise. Quel panneau suis-tu ?',
+      choices: [
+        { text: '🛫 DÉPARTS',  correct: false },
+        { text: '🧳 BAGAGES',  correct: true  },
+        { text: '🚌 NAVETTES', correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '🏨 HÔTELS', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'BAGAGES ! C\'est là que tu récupères ta valise !',
+    },
+    {
+      question: 'Papi Jean-Marie t\'attend dehors. Quel panneau suis-tu ?',
+      choices: [
+        { text: '🧳 BAGAGES',  correct: false },
+        { text: '🚪 SORTIE',   correct: true  },
+        { text: '✈️ ARRIVÉES', correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '🛒 BOUTIQUES', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'SORTIE ! Papi Jean-Marie est dehors, il t\'attend !',
+    },
+  ], '📖 Lecture — Panneaux de CDG 🇫🇷', 'fr');
+
+  // Exercise 11 — Writing FR (postcard)
+  await runNarration([
+    {
+      speaker: '📮 Carte postale',
+      text: 'Pendant que Papi charge les bagages dans la 2CV, tu écris une carte postale à Gabriel !',
+      bg: 'paris',
+      characters: [{ name:'erwan', x:0.5, y:0.65 }],
+    },
+  ]);
+
+  await runExercise({
+    lang: 'fr',
+    type: 'fillblanks',
+    title: '✏️ Écriture — Carte postale à Gabriel',
+    question: 'Complète la carte postale pour Gabriel :',
+    segments: GS.difficulty === 'easy'
+      ? [
+          { text: 'Je suis arri', isBlank: false },
+          { text: 'vé', isBlank: true, answer: 'vé' },
+          { text: ' à Par', isBlank: false },
+          { text: 'is', isBlank: true, answer: 'is' },
+          { text: '. Il y a la Tour Eif', isBlank: false },
+          { text: 'fel', isBlank: true, answer: 'fel' },
+          { text: '!', isBlank: false },
+        ]
+      : [
+          { text: 'Je suis ', isBlank: false },
+          { text: 'arrivé', isBlank: true, answer: 'arrivé' },
+          { text: ' à ', isBlank: false },
+          { text: 'Paris', isBlank: true, answer: 'Paris' },
+          { text: '. Il y a la Tour ', isBlank: false },
+          { text: 'Eiffel', isBlank: true, answer: 'Eiffel' },
+          { text: ' !', isBlank: false },
+        ],
+    journalLabel: '📮 Carte postale de Paris',
+  });
+
+  // ── Scene 3.2 — Route vers Orléans ──────────────────────
+  await runNarration([
+    {
+      speaker: '🚗 Dans la 2CV !',
+      text: 'La vieille 2CV de Papi Jean-Marie roule vers Orléans. Le moteur fait un bruit rigolo : "VROUUUUUN VROUUUUN" !',
+      bg: 'road',
+      characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+    {
+      speaker: '🧓 Papi Jean-Marie',
+      text: 'Tu sais, les châteaux de la Loire ont été construits il y a plus de 500 ans ! Chambord, Chenonceau, Blois... des palais de roi !',
+      bg: 'road',
+      characters: [{ name:'papi', x:0.3, y:0.65 }, { name:'erwan', x:0.6, y:0.65 }],
+    },
+    {
+      speaker: '👵 Maminette',
+      text: 'Et dans l\'un de ces châteaux, un dragon est emprisonné par le terrible Sorcier Malfang... mais toi tu vas le sauver, mon grand chevalier !',
+      bg: 'road',
+      characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 12 — Math FR (distance)
+  const distQ = {
+    easy: { q: 'Orléans est à 130 km de Paris. On a déjà fait 65 km. Combien de km reste-t-il ?', a: 65 },
+    medium: { q: 'Orléans est à 130 km. On a déjà fait 65 km. Combien de km reste-t-il ?', a: 65 },
+    hard: { q: 'On roule à 110 km/h. Orléans est à 130 km. Papi s\'arrête après 65 km. On reprend à 110 km/h. Combien de minutes pour le reste du trajet ? (arrondi à l\'unité)', a: 35 },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '🔢 Calcul — La route pour Orléans',
+    question: distQ.q,
+    answer: distQ.a,
+    correctMsg: `Bravo ! La réponse est ${distQ.a} !`,
+  });
+
+  // Exercise 13 — Reading FR (dragon book)
+  await runMCQSequence([
+    {
+      question: 'Maminette lit : "Les dragons de la Loire vivent dans les tours rondes et mangent des...". Quel mot manque ?',
+      choices: [
+        { text: '🍕 pizzas',    correct: false },
+        { text: '🧀 fromages',  correct: false },
+        { text: '🌟 étoiles magiques', correct: true },
+        ...(GS.difficulty === 'hard' ? [{ text: '🐟 poissons', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Des étoiles magiques ! Comme tes étoiles Knicks !',
+    },
+    {
+      question: 'Le livre dit : "Pour libérer un dragon, il faut être brave et..." ?',
+      choices: [
+        { text: '😴 dormir beaucoup', correct: false },
+        { text: '📚 lire beaucoup',   correct: false },
+        { text: '💪 connaître son nom', correct: true },
+        ...(GS.difficulty === 'hard' ? [{ text: '🏃 courir vite', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: `Oui ! Connaître son nom ! C'est pour ça qu'on a appelé ton dragon "${GS.dragonName}" !`,
+    },
+  ], '📖 Lecture — Le livre sur les dragons', 'fr');
+
+  // Mini-game: Map of France — click cities
+  await runMapGame();
+
+  Audio8bit.play('levelUp');
+  evolveDragon(); // stage 1 → 2
+
+  await runAct4();
+}
+
+// ── Mini-game: France map city click ─────────────────────────
+function runMapGame() {
+  return new Promise(resolve => {
+    hideAllScreens();
+    const screen = document.getElementById('screen-minigame');
+    screen.classList.add('visible');
+    DOM.uiOverlay.classList.add('active');
+
+    const canvas  = document.getElementById('minigame-canvas');
+    const ctx     = canvas.getContext('2d');
+    const titleEl = document.getElementById('mg-title');
+    const instrEl = document.getElementById('mg-instr');
+
+    titleEl.textContent = '🗺️ Carte de France !';
+    instrEl.textContent = 'Clique sur les villes dans l\'ordre : Paris → Orléans';
+
+    const cities = [
+      { name:'Paris',   px:0.48, py:0.28, done:false, step:0 },
+      { name:'Orléans', px:0.47, py:0.38, done:false, step:1 },
+    ];
+    let step = 0;
+
+    function draw() {
+      canvas.width  = canvas.offsetWidth  || 400;
+      canvas.height = canvas.offsetHeight || 300;
+      const W = canvas.width, H = canvas.height;
+
+      // France shape (simplified)
+      ctx.fillStyle = '#2a5a20';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#3a7a30';
+      ctx.beginPath();
+      ctx.ellipse(W*0.48, H*0.5, W*0.28, H*0.38, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // Route line if Paris done
+      if (step >= 1) {
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6,4]);
+        ctx.beginPath();
+        ctx.moveTo(cities[0].px*W, cities[0].py*H);
+        ctx.lineTo(cities[1].px*W, cities[1].py*H);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Cities
+      cities.forEach((city, i) => {
+        const x = city.px * W, y = city.py * H;
+        const isNext = i === step;
+        ctx.fillStyle = city.done ? '#2ecc40' : (isNext ? '#ffd700' : '#888');
+        ctx.beginPath();
+        ctx.arc(x, y, isNext ? 12 : 8, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = `bold ${isNext ? 14 : 12}px monospace`;
+        ctx.textAlign = 'left';
+        ctx.fillText(city.name, x + 14, y + 5);
+        if (city.done) {
+          ctx.fillText('✓', x - 5, y + 5);
+        }
+      });
+
+      // Instructions
+      if (step < cities.length) {
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '15px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`➤ Clique sur : ${cities[step].name}`, W/2, H - 20);
+      }
+    }
+
+    canvas.onclick = e => {
+      const r = canvas.getBoundingClientRect();
+      const mx = (e.clientX - r.left);
+      const my = (e.clientY - r.top);
+      const W = canvas.width, H = canvas.height;
+      if (step >= cities.length) return;
+      const city = cities[step];
+      const dx = mx - city.px * W, dy = my - city.py * H;
+      if (Math.sqrt(dx*dx+dy*dy) < 28) {
+        city.done = true;
+        step++;
+        Audio8bit.play('star');
+        draw();
+        if (step >= cities.length) {
+          celebrate(2);
+          setTimeout(() => {
+            screen.classList.remove('visible');
+            resolve();
+          }, 800);
+        }
+      }
+    };
+    canvas.addEventListener('touchstart', e => {
+      const t = e.touches[0], r = canvas.getBoundingClientRect();
+      canvas.onclick({ clientX: t.clientX, clientY: t.clientY });
+    }, { passive: true });
+
+    draw();
+  });
+}
+
+
+/* ═══ act4-castles.js ═══ */
+/* ============================================================
+   ACT 4 — CHÂTEAUX DE LA LOIRE
+   ============================================================ */
+
+async function runAct4() {
+  GS.actIndex = 3;
+  await doTransition('🏰', 1400);
+
+  // ── Scene 4.1 — Château de Chambord ─────────────────────
+  await runNarration([
+    {
+      speaker: '🏰 Château de Chambord',
+      text: 'Le château de Chambord ! Erwan n\'a jamais rien vu d\'aussi grand. Des tours, des tourelles, des douves... et dans l\'air, une magie étrange...',
+      bg: 'castle',
+      characters: [{ name:'erwan', x:0.35, y:0.65 }, { name:'papi', x:0.6, y:0.65 }],
+    },
+    {
+      speaker: '🧓 Papi Jean-Marie',
+      text: 'Chambord a 365 salles — une pour chaque jour de l\'année ! François Premier l\'a fait construire. C\'est le plus grand château de la Loire !',
+      bg: 'castle',
+      characters: [{ name:'papi', x:0.3, y:0.65 }, { name:'erwan', x:0.6, y:0.65 }],
+    },
+    {
+      speaker: '👵 Maminette',
+      text: 'Regarde ! Il y a une inscription mystérieuse gravée dans la pierre... en vieux français !',
+      bg: 'castle',
+      characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 14 — Reading FR (inscription)
+  const inscriptionText = GS.difficulty === 'easy'
+    ? '"Le dragon dort sous la tour. Seul un chevalier brave peut le sauver."'
+    : '"Le dragon dort sous la tour ronde. Seul un chevalier brave peut briser les chaînes qui l\'emprisonnent."';
+
+  await runMCQSequence([
+    {
+      question: `L'inscription dit : ${inscriptionText}. Où dort le dragon ?`,
+      choices: [
+        { text: 'Dans les douves',  correct: false },
+        { text: 'Sous la tour ronde', correct: true },
+        { text: 'Dans la grande salle', correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: 'Dans les écuries', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Sous la tour ronde ! Tu as bien lu l\'inscription !',
+    },
+    {
+      question: 'Qui peut briser les chaînes du dragon ?',
+      choices: [
+        { text: 'Le roi de France',   correct: false },
+        { text: 'Un chevalier brave', correct: true  },
+        { text: 'Un sorcier puissant', correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: 'Une fée magique', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: `Un chevalier brave... comme ${GS.playerName} !`,
+    },
+  ], '📖 Lecture — Inscription mystérieuse', 'fr');
+
+  // Exercise 15 — Writing FR (password)
+  if (GS.difficulty === 'hard') {
+    // Show for 3 seconds then type from memory
+    await runNarration([
+      {
+        speaker: '🔐 Mot de passe secret',
+        text: 'Mémorise ce mot de passe gravé dans la pierre : DRAGON — Tu as 3 secondes !',
+        bg: 'castle',
+        characters: [{ name:'erwan', x:0.5, y:0.65 }],
+      },
+    ]);
+    await runExercise({
+      lang: 'fr',
+      type: 'typing',
+      title: '✏️ Écriture — Mot de passe de mémoire !',
+      question: 'Tape le mot de passe que tu viens de mémoriser (6 lettres) :',
+      answer: 'DRAGON',
+      alternatives: ['dragon'],
+      placeholder: 'Tape le mot de passe...',
+    });
+  } else if (GS.difficulty === 'medium') {
+    await runExercise({
+      lang: 'fr',
+      type: 'fillblanks',
+      title: '✏️ Écriture — Mot de passe de la porte',
+      question: 'Complète le mot de passe gravé dans la pierre :',
+      segments: [
+        { text: 'D', isBlank: false },
+        { text: 'R', isBlank: true, answer: 'R' },
+        { text: 'A', isBlank: false },
+        { text: 'G', isBlank: true, answer: 'G' },
+        { text: 'O', isBlank: false },
+        { text: 'N', isBlank: true, answer: 'N' },
+      ],
+    });
+  } else {
+    // Easy: drag letters
+    await runExercise({
+      lang: 'fr',
+      type: 'dragdrop',
+      title: '✏️ Écriture — Remets les lettres en ordre',
+      question: 'Les lettres du mot de passe sont mélangées ! Remets-les dans le bon ordre :',
+      words: ['D','R','A','G','O','N'].sort(() => Math.random()-0.5),
+      correctOrder: ['D','R','A','G','O','N'],
+    });
+  }
+
+  // Exercise 16 — Math FR (castle stairs)
+  const stairQ = {
+    easy: { q: 'La tour du château a 100 marches. Tu en montes 40. Combien en reste-t-il ?', a: 60 },
+    medium: { q: 'La tour a 365 marches (une par jour de l\'année !). Tu en montes 100. Combien en reste-t-il ?', a: 265 },
+    hard: { q: 'La tour a 365 marches. Tu montes 3 fois 45 marches avec des pauses. Combien de marches reste-t-il ?', a: 230 },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '🔢 Calcul — Les marches du château',
+    question: stairQ.q,
+    answer: stairQ.a,
+    correctMsg: `Bravo ! ${stairQ.a} marches restantes !`,
+  });
+
+  // ── Scene 4.2 — The English Gate ─────────────────────────
+  await runNarration([
+    {
+      speaker: '🚪 Porte mystérieuse',
+      text: 'Une porte avec une inscription... mais elle est en ANGLAIS ! Papi Jean-Marie plisse les yeux.',
+      bg: 'castle',
+      characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+    {
+      speaker: '🧓 Papi Jean-Marie',
+      text: '"De l\'anglais... je ne comprends rien à ces machins ! Du temps de ma jeunesse on apprenait le latin !"',
+      bg: 'castle',
+      characters: [{ name:'papi', x:0.3, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+    {
+      speaker: '👵 Maminette',
+      text: '"Le parchemin magique dit qu\'il faut répondre en anglais pour ouvrir la prochaine porte... on ne comprend pas l\'anglais nous, mais toi c\'est le chevalier !"',
+      bg: 'castle',
+      characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  // Exercise 17 — Reading EN (translate inscription)
+  await runExercise({
+    lang: 'en',
+    type: 'mcq',
+    title: '📖 Reading — The Castle Door 🇺🇸',
+    question: 'The inscription says: "The brave knight shall open this door." What does it mean in French?',
+    choices: [
+      { text: 'Le courageux chevalier ouvrira cette porte.', correct: true },
+      { text: 'Le sorcier fermera cette porte pour toujours.', correct: false },
+      { text: 'Le dragon brisera cette porte cette nuit.', correct: false },
+      ...(GS.difficulty === 'hard' ? [{ text: 'Le chevalier trouvera la clé dans la tour.', correct: false }] : []),
+    ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+    correctMsg: 'Perfect! "The brave knight shall open this door" = Le courageux chevalier ouvrira cette porte !',
+  });
+
+  // Exercise 18 — Writing EN (BRAVE KNIGHT)
+  if (GS.difficulty === 'hard') {
+    await runExercise({
+      lang: 'en',
+      type: 'typing',
+      title: '✏️ Writing — The Password 🇺🇸',
+      question: 'Type the password in English to open the door:',
+      answer: 'BRAVE KNIGHT',
+      alternatives: ['brave knight'],
+      placeholder: 'Type the password...',
+      hint: '💡 Two words: the first means COURAGEUX, the second means CHEVALIER',
+    });
+  } else {
+    await runExercise({
+      lang: 'en',
+      type: 'fillblanks',
+      title: '✏️ Writing — The Password 🇺🇸',
+      question: 'Complete the password to open the door:',
+      segments: [
+        { text: 'B', isBlank: false },
+        { text: 'RA', isBlank: true, answer: 'RA' },
+        { text: 'VE ', isBlank: false },
+        { text: 'KN', isBlank: true, answer: 'KN' },
+        { text: 'I', isBlank: false },
+        { text: 'GHT', isBlank: true, answer: 'GHT' },
+      ],
+    });
+  }
+
+  // ── Scene 4.3 — BOSS: Sorcier Malfang ───────────────────
+  await runNarration([
+    {
+      speaker: '⚡ ATTENTION !',
+      text: 'La porte s\'ouvre avec un craquement sinistre... et là, dans l\'obscurité, des yeux violets s\'allument !',
+      bg: 'castle',
+      characters: [{ name:'erwan', x:0.65, y:0.65 }],
+    },
+    {
+      speaker: '🧙 Sorcier Malfang',
+      text: '"MWAHAHAHA ! Qui ose entrer dans mon château ?! Un simple chevalier de Brooklyn ?! Je suis le SORCIER MALFANG !"',
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+    {
+      speaker: '🧙 Sorcier Malfang',
+      text: `"Si tu réponds juste à mes TROIS ÉPREUVES, je libère la créature. Sinon... ${GS.dragonName || 'ton dragon'} restera enchaîné POUR TOUJOURS ! Ha ha ha !"`,
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }, { name:'dragon', x:0.5, y:0.75 }],
+    },
+    {
+      speaker: `⚔️ ${GS.playerName}`,
+      text: `"Je relève le défi, Sorcier Malfang ! Je suis ${GS.playerName}, Chevalier de Brooklyn, et je vais sauver ${GS.dragonName || 'mon dragon'} !"`,
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+  ]);
+  Audio8bit.play('bossDead'); // dramatic intro sound
+
+  // Boss Challenge 1 — Math FR
+  const bossQ1 = {
+    easy: { q: 'ÉPREUVE 1 : "J\'ai 5 étoiles magiques et j\'en gagne 8. Combien en ai-je ?" (dit Malfang en ricanant)', a: 13 },
+    medium: { q: 'ÉPREUVE 1 : "J\'ai 3 fois 8 étoiles magiques et j\'en perds 7. Combien en reste-t-il ?" (rit Malfang)', a: 17 },
+    hard: { q: 'ÉPREUVE 1 : "J\'ai 4 fois 9 étoiles. Je t\'en donne la moitié. Combien en reste-t-il chez moi ?" (défie Malfang)', a: 18 },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '⚡ ÉPREUVE 1 du Sorcier Malfang !',
+    question: bossQ1.q,
+    answer: bossQ1.a,
+    correctMsg: `✅ ${bossQ1.a} ! Malfang grogne de rage !`,
+  });
+
+  await runNarration([
+    {
+      speaker: '🧙 Malfang (furieux)',
+      text: `"Grrrr ! Bien calculé, chevalier ! Mais tu ne passeras pas la deuxième épreuve !"`,
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.25, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+  ]);
+
+  // Boss Challenge 2 — Reading FR (drag-drop)
+  const bossWords2 = {
+    easy: {
+      words: ['brave', 'est', 'chevalier', 'Le'],
+      order: ['Le', 'chevalier', 'est', 'brave'],
+    },
+    medium: {
+      words: ['sauver', 'je', 'vais', 'mon', 'dragon'],
+      order: ['je', 'vais', 'sauver', 'mon', 'dragon'],
+    },
+    hard: {
+      words: ['brisera', 'chevalier', 'les', 'brave', 'Le', 'chaînes'],
+      order: ['Le', 'brave', 'chevalier', 'brisera', 'les', 'chaînes'],
+    },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'dragdrop',
+    title: '⚡ ÉPREUVE 2 du Sorcier Malfang !',
+    question: '"Remets ces mots dans le bon ordre pour former une phrase !" rugit Malfang.',
+    words: bossWords2.words,
+    correctOrder: bossWords2.order,
+  });
+
+  await runNarration([
+    {
+      speaker: '🧙 Malfang (de plus en plus furieux)',
+      text: `"IMPOSSIBLE ! Chevalier de malheur ! Mais tu ne peux PAS connaître la dernière épreuve !"`,
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }],
+    },
+    {
+      speaker: '🧙 Malfang',
+      text: `"Pour libérer le dragon... tu dois prononcer son nom secret ! Et tu ne le connais pas !"`,
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'dragon', x:0.5, y:0.75 }, { name:'erwan', x:0.75, y:0.65 }],
+    },
+  ]);
+
+  // Boss Challenge 3 — Type dragon's name!
+  await runExercise({
+    lang: 'fr',
+    type: 'typing',
+    title: '⚡ ÉPREUVE FINALE — Appelle ton dragon !',
+    question: `Tape le nom de ton dragon pour l'appeler ! (Malfang pâlit de rage...)`,
+    answer: GS.dragonName,
+    alternatives: [GS.dragonName.toLowerCase(), GS.dragonName.toUpperCase()],
+    placeholder: 'Tape le nom de ton dragon...',
+    hint: `💡 Son nom commence par : ${GS.dragonName[0] || '?'}`,
+  });
+
+  // VICTORY CINEMATIC
+  await runNarration([
+    {
+      speaker: '🔥 VICTOIRE !',
+      text: `"NOOOON !" hurle Malfang. "Tu connais son nom ! C'est impossible !" Les chaînes du dragon brillent, craquent, et... BOOM !`,
+      bg: 'castle',
+      characters: [{ name:'malfang', x:0.15, y:0.55 }, { name:'dragon', x:0.5, y:0.6 }],
+    },
+    {
+      speaker: `🐉 ${GS.dragonName} est LIBRE !`,
+      text: `${GS.dragonName} brise ses chaînes ! Il grandit, ses écailles brillent, ses ailes se déploient ! Le Sorcier Malfang disparaît dans un nuage de fumée violette !`,
+      bg: 'castle',
+      characters: [{ name:'dragon', x:0.5, y:0.5 }, { name:'erwan', x:0.2, y:0.65 }],
+    },
+    {
+      speaker: '🎆 Feux d\'artifice !',
+      text: `Papi Jean-Marie et Maminette applaudissent ! Des feux d'artifice colorés illuminent le ciel du château ! "${GS.playerName}, tu es le plus grand chevalier de toute la Loire !"`,
+      bg: 'castle',
+      characters: [
+        { name:'papi', x:0.15, y:0.65 }, { name:'maminette', x:0.35, y:0.65 },
+        { name:'erwan', x:0.6, y:0.65 }, { name:'dragon', x:0.82, y:0.5 },
+      ],
+    },
+  ]);
+
+  celebrate(5);
+  Audio8bit.play('bossDead');
+  evolveDragon(); // stage 2 → 3
+
+  await runAct5();
+}
+
+
+/* ═══ act5-bretagne.js ═══ */
+/* ============================================================
+   ACT 5 — BRETAGNE : LA FÊTE FINALE
+   ============================================================ */
+
+async function runAct5() {
+  GS.actIndex = 4;
+  await doTransition('🌊', 1200);
+
+  // ── Scene 5.1 — Arrivée en Bretagne ─────────────────────
+  await runNarration([
+    {
+      speaker: `🐉 ${GS.dragonName} vole !`,
+      text: `${GS.dragonName} vole jusqu'en Bretagne ! Il est LIBRE maintenant ! En dessous, l'océan brille comme un million d'étoiles Knicks !`,
+      bg: 'brittany',
+      characters: [{ name:'dragon', x:0.5, y:0.3 }, { name:'erwan', x:0.55, y:0.28 }],
+    },
+    {
+      speaker: '👵 Mamiya',
+      text: `"Oh ! Le dragon est libre ! Et mon petit chevalier est sur son dos !" Mamiya pleure de joie dans son jardin de Bretagne.`,
+      bg: 'brittany',
+      characters: [{ name:'mamiya', x:0.25, y:0.65 }, { name:'papou', x:0.45, y:0.65 }, { name:'raphael', x:0.65, y:0.65 }],
+    },
+    {
+      speaker: '🔧 Papou',
+      text: `"Fantastique ! Et ce dragon a de magnifiques ailes ! Presque aussi belles que ma tondeuse à gazon réparée la semaine dernière !" dit Papou avec fierté.`,
+      bg: 'brittany',
+      characters: [{ name:'papou', x:0.35, y:0.65 }, { name:'mamiya', x:0.6, y:0.65 }],
+    },
+    {
+      speaker: '👦 Raphaël',
+      text: `"WOOOOAH ! C'est trop cool ! ${GS.playerName} est revenu avec un vrai dragon ! Je veux faire un tour ! Je veux faire un tour !"`,
+      bg: 'brittany',
+      characters: [{ name:'raphael', x:0.5, y:0.65 }, { name:'dragon', x:0.75, y:0.45 }],
+    },
+  ]);
+
+  // Exercise 19 — Reading FR (spot errors in banner)
+  await runNarration([
+    {
+      speaker: '🎊 Banderole de bienvenue',
+      text: 'Raphaël a fait une banderole de bienvenue... mais il a fait 3 fautes ! À toi de les trouver !',
+      bg: 'brittany',
+      characters: [{ name:'raphael', x:0.5, y:0.65 }],
+    },
+  ]);
+
+  await runErrorFindingExercise();
+
+  // Exercise 20 — Math FR (garden vegetables)
+  const gardenQ = {
+    easy: { q: 'Mamiya a planté 5 rangs de carottes et 3 rangs de poireaux. Combien de rangs au total ?', a: 8 },
+    medium: { q: 'Mamiya a 4 rangs de 6 carottes. Raphaël en mange 7. Combien reste-t-il de carottes ?', a: 17 },
+    hard: { q: 'Mamiya a 4 rangs de 8 carottes. Elle partage moitié-moitié entre Erwan et Raphaël. Combien chacun en a-t-il ?', a: 16 },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '🔢 Calcul — Le jardin de Mamiya',
+    question: gardenQ.q,
+    answer: gardenQ.a,
+    correctMsg: `Parfait ! ${gardenQ.a} ! Mamiya est impressionnée !`,
+  });
+
+  // ── Scene 5.2 — Bike ride with Raphaël ──────────────────
+  await runNarration([
+    {
+      speaker: '🚲 Balade en vélo',
+      text: 'Papou sort les vélos du garage. "Allez les cousins, une grande balade en Bretagne ! Le dragon vole au-dessus de nous !" Les routes bretonnes sont magnifiques !',
+      bg: 'brittany',
+      characters: [{ name:'erwan', x:0.35, y:0.65 }, { name:'raphael', x:0.6, y:0.65 }, { name:'papou', x:0.15, y:0.65 }],
+    },
+  ]);
+
+  await runBikeGame();
+
+  // Exercise 21 — Math FR (km calculation)
+  const bikeQ = {
+    easy: { q: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus que toi. Combien a-t-il roulé ?', a: 6 },
+    medium: { q: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus. Ensemble, combien avez-vous roulé ?', a: 10 },
+    hard: { q: 'Tu roules à 12 km/h pendant 30 minutes. Raphaël roule à 10 km/h pendant 1 heure. Qui a roulé le plus loin ? Entre le nombre de km du gagnant.', a: 10 },
+  }[GS.difficulty];
+
+  await runExercise({
+    lang: 'fr',
+    type: 'numpad',
+    title: '🔢 Calcul — Balade à vélo',
+    question: bikeQ.q,
+    answer: bikeQ.a,
+    correctMsg: `Super ! ${bikeQ.a} km ! Vous êtes de vrais champions !`,
+  });
+
+  // ── Scene 5.3 — Dragon learns to fly with Papou ──────────
+  await runNarration([
+    {
+      speaker: '🔧 Papou le bricoleur',
+      text: `Papou a une idée de génie ! Il fabrique des ailes mécaniques GÉANTES pour aider ${GS.dragonName} à voler encore plus haut. "C'est comme réparer un vélo, mais en beaucoup plus grand !"`,
+      bg: 'brittany',
+      characters: [{ name:'papou', x:0.3, y:0.65 }, { name:'dragon', x:0.65, y:0.45 }],
+    },
+    {
+      speaker: `🐉 ${GS.dragonName}`,
+      text: `${GS.dragonName} teste ses nouvelles ailes... et décolle vers les étoiles ! Il vole au-dessus de l'océan breton, libre comme jamais !`,
+      bg: 'brittany',
+      characters: [{ name:'dragon', x:0.5, y:0.25 }, { name:'erwan', x:0.2, y:0.65 }],
+    },
+  ]);
+  evolveDragon(); // stage 3 → 4 (majestic!)
+  Audio8bit.play('dragonGrow');
+
+  // Exercise 22 — Journal FR (longest writing exercise)
+  await runExercise({
+    lang: 'fr',
+    type: 'journal',
+    title: '📔 Journal de bord — La grande aventure',
+    question: `Écris dans ton journal ! Parle de ton dragon et de ton aventure :`,
+    hint: `💡 Écris le nom de ${GS.dragonName}, ce que tu as vécu, les châteaux, la Bretagne...`,
+    placeholder: `${GS.dragonName} est mon dragon. Pendant mon aventure, j'ai...`,
+    journalLabel: '🌊 Journal de Bretagne',
+  });
+
+  // Exercise 23 — Reading FR (galette recipe)
+  await runNarration([
+    {
+      speaker: '👵 Mamiya',
+      text: 'Mamiya prépare des galettes bretonnes magiques pour redonner des forces au dragon ! Elle lit la recette à voix haute...',
+      bg: 'brittany',
+      characters: [{ name:'mamiya', x:0.4, y:0.65 }, { name:'dragon', x:0.7, y:0.5 }],
+    },
+  ]);
+
+  await runMCQSequence([
+    {
+      question: 'La recette dit : "Mélange 200g de farine, 2 œufs et du lait". Quel ingrédient n\'est PAS dans la recette ?',
+      choices: [
+        { text: '🌾 Farine',  correct: false },
+        { text: '🥚 Œufs',   correct: false },
+        { text: '🍫 Chocolat', correct: true },
+        ...(GS.difficulty === 'hard' ? [{ text: '🥛 Lait', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: 'Le chocolat n\'est pas dans la recette de galette bretonne !',
+    },
+    {
+      question: 'La recette dit : "Cuis à la poêle pendant 2 minutes de chaque côté." Combien de minutes au total par galette ?',
+      choices: [
+        { text: '2 minutes',  correct: false },
+        { text: '4 minutes',  correct: true  },
+        { text: '6 minutes',  correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '8 minutes', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: '2 + 2 = 4 minutes par galette ! Tu sais cuisiner !',
+    },
+    {
+      question: `Mamiya fait 8 galettes. Le dragon ${GS.dragonName} en mange 3. Combien reste-t-il de galettes ?`,
+      choices: [
+        { text: '3 galettes', correct: false },
+        { text: '5 galettes', correct: true },
+        { text: '8 galettes', correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '11 galettes', correct: false }] : []),
+      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      correctMsg: '8 − 3 = 5 galettes ! Et elles sont délicieuses !',
+    },
+  ], '📖 Lecture — La recette de Mamiya', 'fr');
+
+  // Exercise 24 — Writing EN (postcard)
+  await runNarration([
+    {
+      speaker: '👵 Mamiya',
+      text: '"Et maintenant un petit exercice en anglais pour que tu n\'oublies pas tes amis de Brooklyn !" dit Mamiya avec un grand sourire.',
+      bg: 'brittany',
+      characters: [{ name:'mamiya', x:0.45, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  await runExercise({
+    lang: 'en',
+    type: GS.difficulty === 'hard' ? 'journal' : 'fillblanks',
+    title: '✏️ Writing — Postcard to Brooklyn 🇺🇸',
+    question: GS.difficulty === 'hard'
+      ? `Write a postcard in English to Gabriel, Adi and Claire! Tell them about your adventure!`
+      : 'Complete the postcard in English for your friends in Brooklyn:',
+    ...(GS.difficulty === 'hard'
+      ? {
+          placeholder: 'Dear Gabriel, Adi and Claire,\nI am in Brittany with my dragon ...',
+          journalLabel: '🇺🇸 Postcard in English',
+        }
+      : {
+          segments: [
+            { text: 'Dear Gabriel, I am in ', isBlank: false },
+            { text: 'Brittany', isBlank: true, answer: 'Brittany' },
+            { text: '. I saved a ', isBlank: false },
+            { text: 'dragon', isBlank: true, answer: 'dragon' },
+            { text: '! It is ', isBlank: false },
+            { text: 'amazing', isBlank: true, answer: 'amazing' },
+            { text: '! Your friend, ', isBlank: false },
+            { text: GS.playerName, isBlank: true, answer: GS.playerName },
+          ],
+          journalLabel: '🇺🇸 Carte postale en anglais',
+        }),
+  });
+
+  // ── Scene 5.4 — EPILOGUE ─────────────────────────────────
+  await runEpilogue();
+}
+
+// ── Exercise: Find errors in banner ───────────────────────────
+function runErrorFindingExercise() {
+  return new Promise(resolve => {
+    const errors = [
+      { text: 'Bienvenus', correct: 'Bienvenue', found: false },
+      { text: 'chevalier !', correct: 'chevalier !', found: true }, // not an error
+      { text: 'Félicitation', correct: 'Félicitations', found: false },
+      { text: 'sauveur du drageon', correct: 'sauveur du dragon', found: false },
+    ];
+    const banner = `"Bienvenus ${GS.playerName}, chevalier ! Félicitation, sauveur du drageon !"`;
+    let found = 0;
+    const realErrors = errors.filter(e => !e.found);
+
+    renderExercise({
+      lang: 'fr',
+      type: 'mcq',
+      title: '📖 Lecture — Trouve les fautes !',
+      question: `Raphaël a écrit : ${banner}\nIl y a ${realErrors.length} fautes ! Trouve-les en cliquant dessus :`,
+      choices: errors.map(e => ({
+        text: e.text,
+        correct: !e.found,
+      })),
+      _resolve: resolve,
+    });
+    // Override to allow multiple selections
+    showScreen('screen-exercise');
+  });
+}
+
+// ── Mini-game: Bike ride side-scroller ───────────────────────
+function runBikeGame() {
+  return new Promise(resolve => {
+    hideAllScreens();
+    const screen = document.getElementById('screen-minigame');
+    screen.classList.add('visible');
+    DOM.uiOverlay.classList.add('active');
+
+    const canvas  = document.getElementById('minigame-canvas');
+    const ctx     = canvas.getContext('2d');
+    document.getElementById('mg-title').textContent = '🚲 Balade en vélo !';
+    document.getElementById('mg-instr').textContent = 'Évite les obstacles ! ← → ou tape les côtés de l\'écran';
+
+    let playerX = 0.25;
+    let score = 0;
+    let tick = 0;
+    let starsCollected = 0;
+    const TARGET_STARS = 5;
+
+    const obstacles = [];
+    const stars = [];
+
+    function spawnObstacle() {
+      obstacles.push({ x: 1.1, y: 0.55 + (Math.random() > 0.5 ? 0 : 0.15), w: 0.04, h: 0.12 });
+    }
+    function spawnStar() {
+      stars.push({ x: 1.05, y: 0.4 + Math.random() * 0.25, collected: false });
+    }
+
+    function loop() {
+      canvas.width  = canvas.offsetWidth  || 400;
+      canvas.height = canvas.offsetHeight || 300;
+      const W = canvas.width, H = canvas.height;
+
+      Sprites.drawBackground(ctx, W, H, 'brittany');
+
+      tick++;
+      if (tick % 80 === 0) spawnObstacle();
+      if (tick % 50 === 0) spawnStar();
+
+      // Move obstacles
+      for (let i = obstacles.length-1; i>=0; i--) {
+        obstacles[i].x -= 0.015;
+        if (obstacles[i].x < -0.1) { obstacles.splice(i,1); continue; }
+        const ox = obstacles[i].x*W, oy = obstacles[i].y*H;
+        ctx.fillStyle = '#555';
+        ctx.fillRect(ox, oy, obstacles[i].w*W, obstacles[i].h*H);
+        // Collision
+        const px = playerX*W, py = H*0.6;
+        if (Math.abs(px - ox) < 20 && Math.abs(py - oy) < 30) {
+          Audio8bit.play('wrong');
+          playerX = 0.25;
+          obstacles.splice(i,1);
+        }
+      }
+
+      // Move stars
+      for (let i = stars.length-1; i>=0; i--) {
+        stars[i].x -= 0.012;
+        if (stars[i].x < -0.1) { stars.splice(i,1); continue; }
+        const sx = stars[i].x*W, sy = stars[i].y*H;
+        if (!stars[i].collected) {
+          ctx.fillStyle = '#ffd700';
+          ctx.font = '20px serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('⭐', sx, sy);
+          const px = playerX*W, py = H*0.6;
+          if (Math.abs(px - sx) < 25 && Math.abs(py - sy) < 35) {
+            stars[i].collected = true;
+            starsCollected++;
+            score++;
+            Audio8bit.play('star');
+            GS.stars++;
+          }
+        }
+      }
+
+      // Draw Erwan on bike
+      ctx.fillStyle = '#2ecc40';
+      ctx.fillRect(playerX*W - 12, H*0.58, 24, 30);
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.arc(playerX*W, H*0.56, 10, 0, Math.PI*2);
+      ctx.fill();
+      // Wheels
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.arc(playerX*W - 10, H*0.68+5, 8, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(playerX*W + 10, H*0.68+5, 8, 0, Math.PI*2); ctx.fill();
+
+      // Dragon flies overhead
+      Sprites.drawDragon(ctx, GS.dragonStage, W*0.6, H*0.15, 3, tick);
+
+      // Score and progress
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`⭐ ${starsCollected}/${TARGET_STARS}`, 10, 30);
+
+      if (starsCollected >= TARGET_STARS) {
+        celebrate(2);
+        screen.classList.remove('visible');
+        resolve();
+        return;
+      }
+
+      if (screen.classList.contains('visible')) requestAnimationFrame(loop);
+    }
+
+    // Controls
+    const keys = {};
+    document.addEventListener('keydown', e => keys[e.key] = true);
+    document.addEventListener('keyup',   e => keys[e.key] = false);
+
+    // Touch controls (tap left/right half)
+    canvas.addEventListener('touchstart', e => {
+      const r = canvas.getBoundingClientRect();
+      const tx = e.touches[0].clientX - r.left;
+      if (tx < canvas.width / 2) keys['ArrowLeft'] = true;
+      else keys['ArrowRight'] = true;
+    }, { passive: true });
+    canvas.addEventListener('touchend', () => {
+      keys['ArrowLeft'] = false; keys['ArrowRight'] = false;
+    }, { passive: true });
+
+    function moveBike() {
+      if (keys['ArrowLeft']  || keys['a']) playerX = Math.max(0.1, playerX - 0.015);
+      if (keys['ArrowRight'] || keys['d']) playerX = Math.min(0.9, playerX + 0.015);
+      requestAnimationFrame(moveBike);
+    }
+    moveBike();
+    loop();
+  });
+}
+
+// ── Grand Epilogue ────────────────────────────────────────────
+async function runEpilogue() {
+  await runNarration([
+    {
+      speaker: '🌅 Coucher de soleil en Bretagne',
+      text: `${GS.dragonName} vole au-dessus de la mer de Bretagne. Le soleil se couche sur l'océan. Toute la famille est réunie...`,
+      bg: 'brittany',
+      characters: [
+        { name:'mamiya',   x:0.1,  y:0.7  },
+        { name:'papou',    x:0.25, y:0.7  },
+        { name:'raphael',  x:0.4,  y:0.7  },
+        { name:'erwan',    x:0.55, y:0.7  },
+        { name:'dragon',   x:0.78, y:0.4  },
+      ],
+    },
+    {
+      speaker: '🌟 La famille réunie',
+      text: `Papi Jean-Marie et Maminette arrivent depuis Orléans par la route ! Tout le monde est là : Mamiya, Papou, Raphaël, Papi Jean-Marie, Maminette... et ${GS.dragonName} !`,
+      bg: 'brittany',
+      characters: [
+        { name:'papi',      x:0.05, y:0.7  },
+        { name:'maminette', x:0.2,  y:0.7  },
+        { name:'mamiya',    x:0.35, y:0.7  },
+        { name:'papou',     x:0.5,  y:0.7  },
+        { name:'raphael',   x:0.65, y:0.7  },
+        { name:'erwan',     x:0.8,  y:0.7  },
+      ],
+    },
+  ]);
+
+  celebrate(10);
+  Audio8bit.play('fanfare');
+
+  // Show the grand finale screen
+  document.getElementById('epilogue-player').textContent = GS.playerName;
+  document.getElementById('epilogue-dragon').textContent = GS.dragonName;
+  document.getElementById('epilogue-stars').textContent  = GS.stars;
+
+  // Fill the journal display
+  const jList = document.getElementById('epilogue-journal');
+  jList.innerHTML = '';
+  GS.journal.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'journal-entry';
+    div.innerHTML = `<div class="journal-entry-label">${entry.label}</div><div>${entry.text}</div>`;
+    jList.appendChild(div);
+  });
+
+  showScreen('screen-epilogue');
+}
+
+
+/* ═══ main.js ═══ */
+/* ============================================================
+   MAIN — Entry point, start/restart logic
+   ============================================================ */
+
+function startGame() {
+  const playerInput = document.getElementById('input-player').value.trim();
+  const dragonInput = document.getElementById('input-dragon').value.trim();
+
+  if (!dragonInput) {
+    document.getElementById('input-dragon').style.borderColor = '#e74c3c';
+    document.getElementById('input-dragon').placeholder = '⚠️ Obligatoire !';
+    Audio8bit.play('wrong');
+    return;
+  }
+  if (!playerInput) {
+    document.getElementById('input-player').style.borderColor = '#e74c3c';
+    Audio8bit.play('wrong');
+    return;
+  }
+
+  GS.playerName  = playerInput;
+  GS.dragonName  = dragonInput;
+  GS.stars       = 0;
+  GS.hearts      = 3;
+  GS.actIndex    = 0;
+  GS.dragonStage = 0;
+  GS.journal     = [];
+
+  Audio8bit.play('click');
+  updateHUD();
+  runAct1();
+}
+
+function restartGame() {
+  GS.stars       = 0;
+  GS.hearts      = 3;
+  GS.actIndex    = 0;
+  GS.dragonStage = 0;
+  GS.journal     = [];
+  GS.dragonName  = '';
+  document.getElementById('input-dragon').value = '';
+  document.getElementById('input-player').value = GS.playerName || 'Erwan';
+  document.getElementById('pin-section').style.display = '';
+  document.getElementById('settings-panel').classList.remove('show');
+  showScreen('screen-start');
+  updateHUD();
+}
+
+// ── Initialization ────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  initDOM();
+  gameLoop();
+  updateHUD();
+
+  // Allow Enter key on start screen
+  document.getElementById('input-dragon').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startGame();
+  });
+  document.getElementById('pin-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPin();
+  });
+
+  // Draw animated background on main canvas
+  let bgTick = 0;
+  function animateBg() {
+    const c = DOM.mainCanvas;
+    const ctx = DOM.ctx;
+    if (c.width > 0 && c.height > 0) {
+      Sprites.drawBackground(ctx, c.width, c.height, 'brooklyn');
+      // Animated title text on canvas (subtle)
+      ctx.fillStyle = `rgba(255,215,0,${0.05 + Math.sin(bgTick*0.05)*0.03})`;
+      ctx.fillRect(0, 0, c.width, c.height);
+    }
+    bgTick++;
+    requestAnimationFrame(animateBg);
+  }
+  animateBg();
+});
+
+</script>
+
+</body>
+</html>

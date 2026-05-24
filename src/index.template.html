@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Erwan et le Dragon de la Loire</title>
+  <style>
+    /* STYLES_PLACEHOLDER */
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     GAME ROOT
+═══════════════════════════════════════════════════════════ -->
+<div id="game-root">
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="hud-hearts">❤️❤️❤️</div>
+    <div id="hud-stars">⭐ 0</div>
+    <div id="hud-act">Prêt à l'aventure !</div>
+    <div id="hud-level">⚔️⚔️</div>
+    <button id="btn-journal" onclick="showJournal()" title="Journal de bord">📔</button>
+  </div>
+
+  <!-- Main canvas + UI overlay -->
+  <div id="canvas-area">
+    <canvas id="main-canvas"></canvas>
+
+    <div id="ui-overlay">
+
+      <!-- ── START SCREEN ───────────────────────────────── -->
+      <div class="screen visible" id="screen-start">
+        <div class="pixel-title">ERWAN ET LE DRAGON<br>DE LA LOIRE</div>
+        <div class="pixel-subtitle">⚔️ Jeu d'Aventure Éducatif ⚔️</div>
+
+        <div class="start-form">
+          <div>
+            <label for="input-player">Ton prénom :</label>
+            <input class="pixel-input" id="input-player" type="text" value="Erwan" maxlength="20" autocomplete="off">
+          </div>
+          <div>
+            <label for="input-dragon">Nom de ton dragon* :</label>
+            <input class="pixel-input" id="input-dragon" type="text" placeholder="Choisis un nom..." maxlength="20" autocomplete="off">
+            <div style="font-size:11px;color:#666;margin-top:4px;">* Obligatoire — ce nom sera utilisé tout au long du jeu !</div>
+          </div>
+          <button class="btn btn-primary" onclick="startGame()">⚔️ COMMENCER L'AVENTURE !</button>
+        </div>
+
+        <button class="btn-parents" onclick="openParentMenu()">⚙️ Parents</button>
+      </div>
+
+      <!-- ── NARRATION SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-narration">
+        <div class="narration-screen">
+          <div class="scene-canvas-container">
+            <canvas class="scene-canvas" id="scene-canvas"></canvas>
+          </div>
+          <div class="dialogue-box">
+            <div class="dialogue-speaker" id="narr-speaker"></div>
+            <div class="dialogue-text" id="narr-text"></div>
+          </div>
+          <button class="btn btn-secondary" id="narr-next">Continuer ▶</button>
+        </div>
+      </div>
+
+      <!-- ── EXERCISE SCREEN ───────────────────────────── -->
+      <div class="screen" id="screen-exercise">
+        <div id="exercise-panel"></div>
+      </div>
+
+      <!-- ── MINI-GAME SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-minigame">
+        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:10px;height:100%;">
+          <div id="mg-title" style="font-size:18px;color:#ffd700;text-align:center;padding:8px;"></div>
+          <div id="mg-instr" style="font-size:13px;color:#aaa;text-align:center;"></div>
+          <canvas id="minigame-canvas" style="flex:1;width:100%;border:3px solid #0f3460;image-rendering:pixelated;"></canvas>
+        </div>
+      </div>
+
+      <!-- ── JOURNAL SCREEN ───────────────────────────── -->
+      <div class="screen" id="screen-journal">
+        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;">
+          <div class="pixel-title" style="font-size:20px;">📔 Journal de bord</div>
+          <div class="journal-scroll">
+            <div id="journal-list"></div>
+          </div>
+          <button class="btn btn-secondary" onclick="hideAllScreens()">← Retour à l'aventure</button>
+        </div>
+      </div>
+
+      <!-- ── GAME OVER SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-gameover">
+        <div class="gameover-title">💔 Courage chevalier !</div>
+        <div class="dialogue-box" style="text-align:center;">
+          <p style="margin-bottom:12px;">Tu as perdu tous tes cœurs...<br>Mais un chevalier ne renonce jamais !</p>
+          <div id="gameover-stars" style="font-size:20px;color:#ffd700;margin-bottom:16px;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="restartGame()">🔄 Recommencer l'aventure !</button>
+      </div>
+
+      <!-- ── EPILOGUE SCREEN ──────────────────────────── -->
+      <div class="screen" id="screen-epilogue">
+        <div style="width:100%;max-width:600px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;padding:8px;">
+          <div class="pixel-title">🎉 VICTOIRE !</div>
+
+          <div class="dialogue-box" style="text-align:center;">
+            <div style="font-size:15px;line-height:1.8;color:#ffd700;">
+              🏅 PARCHEMIN DU SACRE 🏅
+            </div>
+            <div style="font-size:16px;margin-top:12px;line-height:1.8;">
+              <strong id="epilogue-player" style="color:#ffd700;"></strong>,<br>
+              Chevalier de Brooklyn,<br>
+              Sauveur de <strong id="epilogue-dragon" style="color:#2ecc40;"></strong>,<br>
+              est sacré<br>
+              <strong style="font-size:18px;color:#ffd700;">Grand Chevalier de Bretagne !</strong>
+            </div>
+          </div>
+
+          <div class="dialogue-box" style="text-align:center;">
+            <div style="color:#ffd700;font-size:18px;">⭐ Score final : <strong id="epilogue-stars"></strong> étoiles Knicks !</div>
+            <div style="color:#aaa;font-size:13px;margin-top:8px;">Tu es un vrai champion !</div>
+          </div>
+
+          <div class="dialogue-box">
+            <div style="color:#ffd700;font-size:14px;margin-bottom:10px;">📔 TON JOURNAL DE BORD COMPLET :</div>
+            <div id="epilogue-journal" style="max-height:200px;overflow-y:auto;"></div>
+          </div>
+
+          <button class="btn btn-primary" onclick="restartGame()">🔄 Rejouer une nouvelle aventure !</button>
+        </div>
+      </div>
+
+    </div><!-- /ui-overlay -->
+  </div><!-- /canvas-area -->
+
+  <!-- Dragon panel -->
+  <div id="dragon-panel">
+    <canvas id="dragon-canvas" width="72" height="72"></canvas>
+    <div id="dragon-info">
+      <div id="dragon-name-display">🐉 ???</div>
+      <div id="dragon-status">En attente du chevalier...</div>
+    </div>
+    <div id="dragon-mood">😴</div>
+  </div>
+
+</div><!-- /game-root -->
+
+<!-- Flag announcement overlay -->
+<div id="flag-announce">
+  <div id="flag-emoji">🇫🇷</div>
+</div>
+
+<!-- Celebration layer -->
+<div id="celebration"></div>
+
+<!-- Transition overlay -->
+<div id="transition-overlay">
+  <div class="transition-icon" id="transition-icon">✈️</div>
+</div>
+
+<!-- PIN Modal -->
+<div id="pin-modal">
+  <div class="pin-box">
+    <div class="pin-title">⚙️ Menu Parents</div>
+    <div id="pin-section">
+      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px;">Code PIN :</label>
+      <input class="pixel-input" id="pin-input" type="password" maxlength="4" placeholder="••••">
+      <div id="pin-error" style="color:#e74c3c;font-size:12px;margin-top:4px;min-height:16px;"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-primary" style="flex:1" onclick="checkPin()">Valider</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('pin-modal').classList.remove('show')">Annuler</button>
+      </div>
+    </div>
+    <div class="settings-panel" id="settings-panel">
+      <div style="font-size:14px;color:#ffd700;margin-bottom:8px;">Niveau de difficulté :</div>
+      <button class="difficulty-btn" data-diff="easy"   onclick="setDifficulty('easy')">⚔️ Simple — Pour débuter</button>
+      <button class="difficulty-btn selected" data-diff="medium" onclick="setDifficulty('medium')">⚔️⚔️ Moyen — Recommandé ✓</button>
+      <button class="difficulty-btn" data-diff="hard"   onclick="setDifficulty('hard')">⚔️⚔️⚔️ Complexe — Défi !</button>
+      <div style="font-size:11px;color:#666;margin-top:8px;line-height:1.5;">
+        Le niveau affecte la longueur des textes, la complexité des maths et le type d'exercices d'écriture.
+      </div>
+      <button class="btn btn-primary" onclick="document.getElementById('pin-modal').classList.remove('show');document.getElementById('pin-section').style.display='';document.getElementById('settings-panel').classList.remove('show');" style="margin-top:8px;">
+        ✓ Enregistrer et fermer
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* SCRIPTS_PLACEHOLDER */
+</script>
+
+</body>
+</html>
