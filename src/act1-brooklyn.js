@@ -99,25 +99,26 @@ async function runAct1() {
   ]);
 
   // Exercise 3 — Writing FR (fill blanks)
+  // Gabriel a dit "Sois courageux !", Adi "Bonne chance !", Claire "Reviens vite !"
   await runExercise({
     lang: 'fr',
     type: 'fillblanks',
-    title: '✏️ Écriture — Au revoir !',
-    question: 'Complète les mots que tes amis te disent en partant :',
+    title: '✏️ Écriture — Les mots de tes amis',
+    question: 'Gabriel, Adi et Claire t\'ont dit ces mots. Complète les lettres qui manquent :',
     segments: GS.difficulty === 'easy'
       ? [
-          { text: 'Bon voya', isBlank: false },
-          { text: 'ge', isBlank: true,  answer: 'ge' },
-          { text: '! Sois cou', isBlank: false },
+          { text: 'Gabriel : "Sois cou', isBlank: false },
           { text: 'ra', isBlank: true, answer: 'ra' },
-          { text: 'geux !', isBlank: false },
+          { text: 'geux !"', isBlank: false },
         ]
       : [
-          { text: 'Bon ', isBlank: false },
-          { text: 'voyage', isBlank: true, answer: 'voyage' },
-          { text: '! Sois ', isBlank: false },
+          { text: 'Gabriel : "Sois ', isBlank: false },
           { text: 'courageux', isBlank: true, answer: 'courageux' },
-          { text: '!', isBlank: false },
+          { text: ' !" — Adi : "Bonne ', isBlank: false },
+          { text: 'chance', isBlank: true, answer: 'chance' },
+          { text: ' !" — Claire : "Reviens ', isBlank: false },
+          { text: 'vite', isBlank: true, answer: 'vite' },
+          { text: ' !"', isBlank: false },
         ],
   });
 

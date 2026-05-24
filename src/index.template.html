@@ -81,11 +81,31 @@
 
       <!-- ── JOURNAL SCREEN ───────────────────────────── -->
       <div class="screen" id="screen-journal">
-        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;">
+        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;height:100%;padding:12px 0;">
           <div class="pixel-title" style="font-size:20px;">📔 Journal de bord</div>
-          <div class="journal-scroll">
+
+          <!-- Write area always visible at top -->
+          <div style="background:#0d1a2e;border:2px solid #ffd700;border-radius:4px;padding:12px;">
+            <div style="font-size:12px;color:#ffd700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">✏️ Écris une nouvelle note :</div>
+            <textarea id="journal-write-input"
+              placeholder="Écris ici ce que tu veux garder en mémoire..."
+              style="width:100%;min-height:80px;background:#0a0a1a;border:2px solid #0f3460;
+                     color:#e0e0ff;font-family:'Courier New',monospace;font-size:16px;
+                     padding:10px;border-radius:3px;resize:vertical;outline:none;
+                     touch-action:auto;-webkit-user-select:text;user-select:text;
+                     display:block;box-sizing:border-box;"></textarea>
+            <button class="btn btn-primary" onclick="addJournalNote()"
+              style="margin-top:8px;width:100%;font-size:15px;padding:12px;">
+              💾 Ajouter au journal
+            </button>
+          </div>
+
+          <!-- Entries list -->
+          <div style="font-size:12px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">📜 Tes notes :</div>
+          <div class="journal-scroll" style="flex:1;overflow-y:auto;">
             <div id="journal-list"></div>
           </div>
+
           <button class="btn btn-secondary" onclick="closeJournal()">← Retour à l'aventure</button>
         </div>
       </div>

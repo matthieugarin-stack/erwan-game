@@ -338,6 +338,11 @@ html, body {
   padding: 4px 6px;
   outline: none;
   text-align: center;
+  /* Mobile: ensure tappable and keyboard appears */
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-appearance: none;
 }
 .full-input-area { display: flex; gap: 8px; width: 100%; }
 .full-input {
@@ -350,8 +355,23 @@ html, body {
   padding: 10px 12px;
   border-radius: 3px;
   outline: none;
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-appearance: none;
 }
 .full-input:focus { border-color: var(--pixel-gold); }
+
+/* Ensure all inputs inside exercises work on touch */
+#exercise-panel input,
+#exercise-panel textarea {
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  pointer-events: all;
+  position: relative;
+  z-index: 10;
+}
 
 /* ── DRAG DROP WORD ORDER ─────────────────────────────── */
 .drag-zone {

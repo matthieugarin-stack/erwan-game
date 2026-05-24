@@ -187,15 +187,12 @@ function addToJournal(label, text) {
 
 let _journalPrev = null; // screen id shown before journal was opened
 
-function showJournal() {
-  // Remember what was visible so we can restore it on close
-  const current = document.querySelector('.screen.visible');
-  _journalPrev = current ? current.id : null;
-
+function refreshJournalList() {
   const list = document.getElementById('journal-list');
+  if (!list) return;
   list.innerHTML = '';
   if (GS.journal.length === 0) {
-    list.innerHTML = '<div class="journal-entry" style="color:#666;">Rien encore écrit...</div>';
+    list.innerHTML = '<div class="journal-entry" style="color:#666;font-style:italic;">Aucune note encore... Commence à écrire ci-dessus !</div>';
   } else {
     GS.journal.forEach(entry => {
       const div = document.createElement('div');
@@ -204,6 +201,28 @@ function showJournal() {
       list.appendChild(div);
     });
   }
+}
+
+function addJournalNote() {
+  const inp = document.getElementById('journal-write-input');
+  const text = inp ? inp.value.trim() : '';
+  if (!text || text.length < 2) {
+    inp && (inp.style.borderColor = '#e74c3c');
+    return;
+  }
+  addToJournal('📝 Note libre', text);
+  Audio8bit.play('correct');
+  inp.value = '';
+  inp.style.borderColor = '#2ecc40';
+  setTimeout(() => { inp.style.borderColor = '#0f3460'; }, 1000);
+  refreshJournalList();
+}
+
+function showJournal() {
+  // Remember what was visible so we can restore it on close
+  const current = document.querySelector('.screen.visible');
+  _journalPrev = current ? current.id : null;
+  refreshJournalList();
   showScreen('screen-journal');
 }
 
