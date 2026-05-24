@@ -80,7 +80,7 @@ async function runAct1() {
     },
     {
       speaker: '🛡️ Gabriel',
-      text: 'Je te donne mon bouclier magique ! Il a la toile de Spider-Man dessus. Sois courageux !',
+      text: 'Je te donne mon bouclier magique ! Il a la toile de Spider-Man dessus. Et j\'ai écrit un message pour toi sur ce bout de papier !',
       bg: 'school',
       characters: [{ name:'gabriel', x:0.4, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
     },
@@ -135,13 +135,14 @@ async function runAct1() {
   });
 
   // Exercise 4 — Reading FR (drag-drop)
+  // Sentence: "Tu vas sauver le dragon, brave chevalier !"
   await runExercise({
     lang: 'fr',
     type: 'dragdrop',
     title: '📖 Message de Gabriel — Remet les mots en ordre',
-    question: 'Gabriel t\'a laissé un message secret ! Remets les mots dans le bon ordre :',
-    words: ['Tu', 'vas', 'sauver', 'le', 'dragon', 'brave', 'chevalier'],
-    correctOrder: ['Tu', 'vas', 'sauver', 'le', 'dragon', 'brave', 'chevalier'],
+    question: 'Gabriel t\'a écrit un message sur un bout de papier ! Remets les mots dans le bon ordre pour lire sa phrase :',
+    words: ['Tu', 'vas', 'sauver', 'le', 'dragon,', 'brave', 'chevalier', '!'],
+    correctOrder: ['Tu', 'vas', 'sauver', 'le', 'dragon,', 'brave', 'chevalier', '!'],
   });
 
   // Mini celebration
