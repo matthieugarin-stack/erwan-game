@@ -763,6 +763,9 @@ function runNarration(lines) {
         else Sprites.drawCharacter(scCtx, ch.name, x, y, 3, GS.frame);
       });
 
+      // Play optional sound cue when the line appears
+      if (line.sound) Audio8bit.play(line.sound);
+
       speakerEl.textContent = line.speaker || '';
       textEl.textContent    = '';
       // Typewriter effect

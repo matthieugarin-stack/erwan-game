@@ -145,12 +145,13 @@ async function runAct1() {
     correctOrder: ['Tu', 'vas', 'sauver', 'le', 'dragon,', 'brave', 'chevalier', '!'],
   });
 
-  // Mini celebration
+  // Mini celebration — fanfare joue dès l'affichage de la scène
   await runNarration([
     {
-      speaker: '🎺 Fanfare Knicks !',
-      text: 'Gabriel, Adi et Claire font coucou ! Une fanfare 8-bit retentit ! Le chevalier Erwan part à l\'aventure !',
+      speaker: '🎺 Au revoir !',
+      text: 'Gabriel, Adi et Claire font coucou et sautent de joie. Le chevalier Erwan part à l\'aventure !',
       bg: 'school',
+      sound: 'fanfare',
       characters: [
         { name:'gabriel', x:0.2, y:0.65 },
         { name:'adi',     x:0.4, y:0.65 },
@@ -159,7 +160,6 @@ async function runAct1() {
       ],
     },
   ]);
-  Audio8bit.play('levelUp');
   evolveDragon(); // stage 0 → 1
 
   await runAct2();
