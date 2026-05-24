@@ -65,11 +65,26 @@ function updateHUD() {
 function renderDragonPanel() {
   const c = DOM.dragonCanvas;
   const ctx = DOM.dragonCtx;
-  c.width = 72; c.height = 72;
-  ctx.clearRect(0, 0, 72, 72);
+  const SIZE = 80;
+  c.width = SIZE; c.height = SIZE;
   ctx.fillStyle = '#0a0a1a';
-  ctx.fillRect(0, 0, 72, 72);
-  Sprites.drawDragon(ctx, GS.dragonStage, 4, 4, 4, GS.frame);
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  // Scale grows with stage so dragon looks bigger each time
+  const scales = [3, 3, 4, 4, 5];
+  const scale = scales[GS.dragonStage] || 3;
+  // Center the sprite in the canvas
+  const spriteW = (GS.dragonStage <= 1 ? 7 : GS.dragonStage === 2 ? 8 : GS.dragonStage === 3 ? 9 : 10) * scale;
+  const spriteH = (GS.dragonStage <= 1 ? 7 : GS.dragonStage === 2 ? 8 : GS.dragonStage === 3 ? 9 : 10) * scale;
+  const ox = Math.max(0, (SIZE - spriteW) / 2) | 0;
+  const oy = Math.max(0, (SIZE - spriteH) / 2) | 0;
+  Sprites.drawDragon(ctx, GS.dragonStage, ox, oy, scale, GS.frame);
+  // Stage indicator dots
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = i <= GS.dragonStage ? '#ffd700' : '#333';
+    ctx.beginPath();
+    ctx.arc(8 + i * 13, SIZE - 6, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 // ── Main animation loop ──────────────────────────────────────
@@ -170,7 +185,13 @@ function addToJournal(label, text) {
   if (text && text.trim()) GS.journal.push({ label, text: text.trim() });
 }
 
+let _journalPrev = null; // screen id shown before journal was opened
+
 function showJournal() {
+  // Remember what was visible so we can restore it on close
+  const current = document.querySelector('.screen.visible');
+  _journalPrev = current ? current.id : null;
+
   const list = document.getElementById('journal-list');
   list.innerHTML = '';
   if (GS.journal.length === 0) {
@@ -184,6 +205,17 @@ function showJournal() {
     });
   }
   showScreen('screen-journal');
+}
+
+function closeJournal() {
+  if (_journalPrev) {
+    // Restore previous screen (exercise, narration, etc.)
+    showScreen(_journalPrev);
+  } else {
+    // Was on canvas/minigame — just hide journal, keep overlay active
+    document.getElementById('screen-journal').classList.remove('visible');
+  }
+  _journalPrev = null;
 }
 
 // ── PIN & Parent Settings ─────────────────────────────────────
