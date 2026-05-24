@@ -163,10 +163,8 @@ async function runAct3() {
 // ── Mini-game: France map city click ─────────────────────────
 function runMapGame() {
   return new Promise(resolve => {
-    hideAllScreens();
+    showScreen('screen-minigame');
     const screen = document.getElementById('screen-minigame');
-    screen.classList.add('visible');
-    DOM.uiOverlay.classList.add('active');
 
     const canvas  = document.getElementById('minigame-canvas');
     const ctx     = canvas.getContext('2d');

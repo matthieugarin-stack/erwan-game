@@ -99,7 +99,7 @@ function showScreen(id) {
 }
 function hideAllScreens() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-  DOM.uiOverlay.classList.remove('active');
+  // keep active so overlay stays clickable when a minigame canvas is shown directly
 }
 
 // ── Flag announcement ────────────────────────────────────────
