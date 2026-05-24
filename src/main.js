@@ -2,6 +2,14 @@
    MAIN — Entry point, start/restart logic
    ============================================================ */
 
+function confirmRestart() {
+  // Don't show confirm if already on start screen
+  const onStart = document.getElementById('screen-start').classList.contains('visible');
+  if (onStart) return;
+  document.getElementById('confirm-modal').style.display = 'flex';
+  Audio8bit.play('click');
+}
+
 function startGame() {
   const playerInput = document.getElementById('input-player').value.trim();
   const dragonInput = document.getElementById('input-dragon').value.trim();

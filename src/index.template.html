@@ -22,6 +22,30 @@
     <div id="hud-act">Prêt à l'aventure !</div>
     <div id="hud-level">⚔️⚔️</div>
     <button id="btn-journal" onclick="showJournal()" title="Journal de bord">📔</button>
+    <button id="btn-home" onclick="confirmRestart()" title="Recommencer depuis le début">🏠</button>
+  </div>
+
+  <!-- Confirm restart modal -->
+  <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);
+    z-index:600;align-items:center;justify-content:center;">
+    <div style="background:#16213e;border:3px solid #e74c3c;border-radius:4px;padding:24px;
+      max-width:320px;width:90%;display:flex;flex-direction:column;gap:16px;text-align:center;">
+      <div style="font-size:22px;">🏠</div>
+      <div style="font-size:15px;line-height:1.6;color:#e0e0ff;">
+        Tu veux vraiment recommencer depuis le début ?<br>
+        <span style="color:#e74c3c;font-size:13px;">Ta progression sera perdue.</span>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:1;font-size:14px;"
+          onclick="document.getElementById('confirm-modal').style.display='none'">
+          ← Continuer
+        </button>
+        <button class="btn btn-primary" style="flex:1;font-size:14px;background:#e74c3c;border-color:#c0392b;"
+          onclick="document.getElementById('confirm-modal').style.display='none';restartGame()">
+          Recommencer ✓
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Main canvas + UI overlay -->
