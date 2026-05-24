@@ -261,6 +261,12 @@ html, body {
 }
 
 /* ── EXERCISE PANEL ───────────────────────────────────── */
+#screen-exercise {
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
 #exercise-panel {
   width: 100%; max-width: 560px;
   background: var(--pixel-panel);

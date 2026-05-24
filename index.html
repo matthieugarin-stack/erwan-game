@@ -268,6 +268,12 @@ html, body {
 }
 
 /* ── EXERCISE PANEL ───────────────────────────────────── */
+#screen-exercise {
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
 #exercise-panel {
   width: 100%; max-width: 560px;
   background: var(--pixel-panel);
@@ -1055,6 +1061,47 @@ const Sprites = (() => {
     };
 
     switch (type) {
+      case 'room':
+        // Erwan's bedroom: walls, floor, desk, bed, Knicks poster
+        ctx.fillStyle = '#2a1a3e'; ctx.fillRect(0, 0, W, H); // wall
+        ctx.fillStyle = '#3a2a50'; ctx.fillRect(0, H*0.72, W, H*0.28); // floor
+        // Knicks poster on wall (orange & blue)
+        ctx.fillStyle = '#ff6b00';
+        ctx.fillRect(W*0.1, H*0.08, W*0.22, H*0.32);
+        ctx.fillStyle = '#006bff';
+        ctx.fillRect(W*0.1, H*0.08, W*0.22, H*0.14);
+        ctx.fillStyle = '#fff';
+        ctx.font = `bold ${Math.floor(W*0.03)}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('KNICKS', W*0.21, H*0.185);
+        ctx.fillStyle = '#ffd700';
+        ctx.font = `bold ${Math.floor(W*0.05)}px monospace`;
+        ctx.fillText('NY', W*0.21, H*0.33);
+        // Desk
+        ctx.fillStyle = '#7a5020'; ctx.fillRect(W*0.55, H*0.55, W*0.38, H*0.06);
+        ctx.fillStyle = '#5a3a18'; ctx.fillRect(W*0.56, H*0.61, W*0.05, H*0.12);
+        ctx.fillRect(W*0.86, H*0.61, W*0.05, H*0.12);
+        // Book on desk
+        ctx.fillStyle = '#e74c3c'; ctx.fillRect(W*0.62, H*0.47, W*0.1, H*0.09);
+        ctx.fillStyle = '#c0392b'; ctx.fillRect(W*0.62, H*0.47, W*0.01, H*0.09);
+        // Parchemin (scroll)
+        ctx.fillStyle = '#f5deb3'; ctx.fillRect(W*0.74, H*0.46, W*0.12, H*0.1);
+        ctx.fillStyle = '#d4a040';
+        ctx.font = `${Math.floor(W*0.025)}px monospace`;
+        ctx.fillText('📜', W*0.8, H*0.515);
+        // Bed
+        ctx.fillStyle = '#1a5a9a'; ctx.fillRect(W*0.04, H*0.58, W*0.38, H*0.16);
+        ctx.fillStyle = '#fff'; ctx.fillRect(W*0.04, H*0.58, W*0.38, H*0.05);
+        ctx.fillStyle = '#2ecc40'; ctx.fillRect(W*0.04, H*0.63, W*0.38, H*0.04);
+        // Window with city view
+        ctx.fillStyle = '#1a3a6a'; ctx.fillRect(W*0.38, H*0.1, W*0.16, H*0.25);
+        ctx.fillStyle = '#fffde7';
+        for (let s=0; s<5; s++) { ctx.fillRect(W*(0.4+s*0.025), H*0.12, 3, 3); }
+        ctx.strokeStyle = '#888'; ctx.lineWidth = 2;
+        ctx.strokeRect(W*0.38, H*0.1, W*0.16, H*0.25);
+        ctx.beginPath(); ctx.moveTo(W*0.46, H*0.1); ctx.lineTo(W*0.46, H*0.35); ctx.stroke();
+        break;
+
       case 'brooklyn':
         drawSky('#1a1a3e', '#2d4a7a');
         // Buildings silhouette
@@ -2102,14 +2149,14 @@ async function runAct1() {
   await runNarration([
     {
       speaker: '📜 Parchemin magique',
-      text: 'Un parchemin magique apparaît sur le bureau d\'Erwan... Il vient de Mamiya !',
-      bg: 'brooklyn',
+      text: 'Un parchemin magique apparaît sur le bureau d\'Erwan... Il vient de Mamiya ! Sur le mur, le poster orange et bleu des Knicks te regarde.',
+      bg: 'room',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
     {
       speaker: '💌 Mamiya',
       text: `Un dragon bébé est emprisonné par le terrible Sorcier Malfang dans un château de la Loire. Toi seul peux le sauver, ${GS.playerName} ! Tu pars en France tout seul, comme un grand chevalier !`,
-      bg: 'brooklyn',
+      bg: 'room',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
   ]);
@@ -2117,12 +2164,12 @@ async function runAct1() {
   // Exercise 1 — Reading FR (MCQ sequence)
   await runMCQSequence([
     {
-      question: 'De quelle couleur est le maillot des Knicks sur le poster ?',
+      question: 'Sur le poster des Knicks dans ta chambre, de quelles couleurs est le maillot ?',
       choices: [
-        { text: 'Rouge et blanc', correct: false },
-        { text: 'Orange et bleu', correct: true  },
-        { text: 'Vert et noir',   correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Jaune et violet', correct: false }] : []),
+        { text: '🔴 Rouge et blanc', correct: false },
+        { text: '🟠 Orange et bleu', correct: true  },
+        { text: '🟢 Vert et noir',   correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '🟡 Jaune et violet', correct: false }] : []),
       ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
       correctMsg: 'Oui ! Orange et bleu, les couleurs des New York Knicks !',
     },

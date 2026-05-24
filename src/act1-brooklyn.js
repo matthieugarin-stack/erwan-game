@@ -10,14 +10,14 @@ async function runAct1() {
   await runNarration([
     {
       speaker: '📜 Parchemin magique',
-      text: 'Un parchemin magique apparaît sur le bureau d\'Erwan... Il vient de Mamiya !',
-      bg: 'brooklyn',
+      text: 'Un parchemin magique apparaît sur le bureau d\'Erwan... Il vient de Mamiya ! Sur le mur, le poster orange et bleu des Knicks te regarde.',
+      bg: 'room',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
     {
       speaker: '💌 Mamiya',
       text: `Un dragon bébé est emprisonné par le terrible Sorcier Malfang dans un château de la Loire. Toi seul peux le sauver, ${GS.playerName} ! Tu pars en France tout seul, comme un grand chevalier !`,
-      bg: 'brooklyn',
+      bg: 'room',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
   ]);
@@ -25,12 +25,12 @@ async function runAct1() {
   // Exercise 1 — Reading FR (MCQ sequence)
   await runMCQSequence([
     {
-      question: 'De quelle couleur est le maillot des Knicks sur le poster ?',
+      question: 'Sur le poster des Knicks dans ta chambre, de quelles couleurs est le maillot ?',
       choices: [
-        { text: 'Rouge et blanc', correct: false },
-        { text: 'Orange et bleu', correct: true  },
-        { text: 'Vert et noir',   correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Jaune et violet', correct: false }] : []),
+        { text: '🔴 Rouge et blanc', correct: false },
+        { text: '🟠 Orange et bleu', correct: true  },
+        { text: '🟢 Vert et noir',   correct: false },
+        ...(GS.difficulty === 'hard' ? [{ text: '🟡 Jaune et violet', correct: false }] : []),
       ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
       correctMsg: 'Oui ! Orange et bleu, les couleurs des New York Knicks !',
     },
