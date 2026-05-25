@@ -30,28 +30,25 @@ async function runAct1() {
         { text: '🔴 Rouge et blanc', correct: false },
         { text: '🟠 Orange et bleu', correct: true  },
         { text: '🟢 Vert et noir',   correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🟡 Jaune et violet', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Oui ! Orange et bleu, les couleurs des New York Knicks !',
     },
     {
       question: 'Qui a envoyé le parchemin magique à Erwan ?',
       choices: [
-        { text: 'Gabriel',       correct: false },
-        { text: 'Mamiya',        correct: true  },
+        { text: 'Gabriel',         correct: false },
+        { text: 'Mamiya',          correct: true  },
         { text: 'Papi Jean-Marie', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Le dragon', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Oui ! C\'est Mamiya, la grand-mère de Bretagne !',
     },
     {
       question: 'Où est emprisonné le dragon ?',
       choices: [
-        { text: 'À Brooklyn',             correct: false },
-        { text: 'Dans un château de la Loire', correct: true },
-        { text: 'En Bretagne',            correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'À Paris', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+        { text: 'À Brooklyn',                  correct: false },
+        { text: 'Dans un château de la Loire', correct: true  },
+        { text: 'En Bretagne',                 correct: false },
+      ],
       correctMsg: 'Bravo ! Dans un château de la Loire !',
     },
   ], '📖 Lecture — La chambre d\'Erwan', 'fr');
@@ -98,28 +95,23 @@ async function runAct1() {
     },
   ]);
 
-  // Exercise 3 — Writing FR (fill blanks)
-  // Gabriel a dit "Sois courageux !", Adi "Bonne chance !", Claire "Reviens vite !"
+  // Exercise 3 — Writing FR (fill blanks — exact quotes)
   await runExercise({
     lang: 'fr',
     type: 'fillblanks',
-    title: '✏️ Écriture — Les mots de tes amis',
-    question: 'Gabriel, Adi et Claire t\'ont dit ces mots. Complète les lettres qui manquent :',
-    segments: GS.difficulty === 'easy'
-      ? [
-          { text: 'Gabriel : "Sois cou', isBlank: false },
-          { text: 'ra', isBlank: true, answer: 'ra' },
-          { text: 'geux !"', isBlank: false },
-        ]
-      : [
-          { text: 'Gabriel : "Sois ', isBlank: false },
-          { text: 'courageux', isBlank: true, answer: 'courageux' },
-          { text: ' !" — Adi : "Bonne ', isBlank: false },
-          { text: 'chance', isBlank: true, answer: 'chance' },
-          { text: ' !" — Claire : "Reviens ', isBlank: false },
-          { text: 'vite', isBlank: true, answer: 'vite' },
-          { text: ' !"', isBlank: false },
-        ],
+    title: '✏️ Écriture — Ce qu\'ont dit tes amis',
+    question: 'Rappelle-toi ce que t\'ont dit tes amis ! Complète leurs paroles :',
+    segments: [
+      { text: 'Gabriel : "J\'ai écrit un ', isBlank: false },
+      { text: 'message', isBlank: true, answer: 'message' },
+      { text: ' pour toi !"', isBlank: false },
+      { text: ' — Adi : "Elle te rendra ', isBlank: false },
+      { text: 'invisible', isBlank: true, answer: 'invisible' },
+      { text: ' !"', isBlank: false },
+      { text: ' — Claire : "Bon ', isBlank: false },
+      { text: 'voyage', isBlank: true, answer: 'voyage' },
+      { text: ' !"', isBlank: false },
+    ],
   });
 
   // Exercise 3b — Type school name
@@ -135,7 +127,6 @@ async function runAct1() {
   });
 
   // Exercise 4 — Reading FR (drag-drop)
-  // Sentence: "Tu vas sauver le dragon, brave chevalier !"
   await runExercise({
     lang: 'fr',
     type: 'dragdrop',

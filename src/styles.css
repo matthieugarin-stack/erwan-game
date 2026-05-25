@@ -52,7 +52,6 @@ html, body {
 #hud-hearts { font-size: 20px; letter-spacing: 2px; min-width: 70px; }
 #hud-stars  { color: var(--pixel-gold); font-size: 15px; font-weight: bold; min-width: 80px; }
 #hud-act    { flex: 1; text-align: center; font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-#hud-level  { font-size: 14px; min-width: 60px; text-align: right; }
 #btn-journal, #btn-home {
   background: var(--pixel-border);
   border: 2px solid var(--pixel-gold);
@@ -204,19 +203,6 @@ html, body {
   padding: 8px 16px;
   min-height: 36px;
 }
-.btn-parents {
-  position: absolute; top: 8px; right: 8px;
-  background: transparent;
-  border: 1px solid #333;
-  color: #555;
-  font-size: 11px;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-family: var(--font-pixel);
-  border-radius: 3px;
-}
-.btn-parents:hover { color: #999; border-color: #666; }
-
 /* ── DIALOGUE BOX ─────────────────────────────────────── */
 .dialogue-box {
   background: var(--pixel-panel);
@@ -478,43 +464,6 @@ html, body {
   font-size: 14px; line-height: 1.5;
 }
 .journal-entry-label { color: var(--pixel-gold); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-
-/* ── PIN MODAL ────────────────────────────────────────── */
-#pin-modal {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  align-items: center; justify-content: center;
-  z-index: 500;
-}
-#pin-modal.show { display: flex; }
-.pin-box {
-  background: var(--pixel-panel);
-  border: 3px solid var(--pixel-border);
-  padding: 24px; border-radius: 4px;
-  display: flex; flex-direction: column; gap: 16px;
-  min-width: 280px;
-}
-.pin-title { font-size: 16px; color: var(--pixel-gold); text-align: center; }
-
-/* ── SETTINGS PANEL ───────────────────────────────────── */
-#settings-panel {
-  display: none; flex-direction: column; gap: 14px;
-}
-#settings-panel.show { display: flex; }
-.difficulty-btn {
-  font-family: var(--font-pixel);
-  font-size: 14px;
-  padding: 12px 16px;
-  border: 2px solid var(--pixel-border);
-  background: #0a0a1a;
-  color: var(--pixel-text);
-  cursor: pointer;
-  border-radius: 3px;
-  text-align: left;
-  transition: border-color 0.2s, background 0.2s;
-}
-.difficulty-btn.selected { border-color: var(--pixel-gold); background: #1a1a00; color: var(--pixel-gold); }
 
 /* ── MINI MAP ─────────────────────────────────────────── */
 #mini-map-canvas {

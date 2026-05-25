@@ -46,20 +46,14 @@ async function runAct5() {
 
   await runErrorFindingExercise();
 
-  // Exercise 20 — Math FR (garden vegetables)
-  const gardenQ = {
-    easy: { q: 'Mamiya a planté 5 rangs de carottes et 3 rangs de poireaux. Combien de rangs au total ?', a: 8 },
-    medium: { q: 'Mamiya a 4 rangs de 6 carottes. Raphaël en mange 7. Combien reste-t-il de carottes ?', a: 17 },
-    hard: { q: 'Mamiya a 4 rangs de 8 carottes. Elle partage moitié-moitié entre Erwan et Raphaël. Combien chacun en a-t-il ?', a: 16 },
-  }[GS.difficulty];
-
+  // Exercise 20 — Math FR (apple harvest)
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Le jardin de Mamiya',
-    question: gardenQ.q,
-    answer: gardenQ.a,
-    correctMsg: `Parfait ! ${gardenQ.a} ! Mamiya est impressionnée !`,
+    question: 'Mamiya ramasse 5 paniers de 30 pommes. Raphaël en mange 2. Combien reste-t-il de pommes ?',
+    answer: 148,
+    correctMsg: 'Parfait ! 5 × 30 = 150, moins 2 = 148 pommes ! Mamiya est impressionnée !',
   });
 
   // ── Scene 5.2 — Bike ride with Raphaël ──────────────────
@@ -75,19 +69,13 @@ async function runAct5() {
   await runBikeGame();
 
   // Exercise 21 — Math FR (km calculation)
-  const bikeQ = {
-    easy: { q: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus que toi. Combien a-t-il roulé ?', a: 6 },
-    medium: { q: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus. Ensemble, combien avez-vous roulé ?', a: 10 },
-    hard: { q: 'Tu roules à 12 km/h pendant 30 minutes. Raphaël roule à 10 km/h pendant 1 heure. Qui a roulé le plus loin ? Entre le nombre de km du gagnant.', a: 10 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Balade à vélo',
-    question: bikeQ.q,
-    answer: bikeQ.a,
-    correctMsg: `Super ! ${bikeQ.a} km ! Vous êtes de vrais champions !`,
+    question: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus. Ensemble, combien avez-vous roulé ?',
+    answer: 10,
+    correctMsg: 'Super ! 4 + (4+2) = 10 km ! Vous êtes de vrais champions !',
   });
 
   // ── Scene 5.3 — Dragon learns to fly with Papou ──────────
@@ -133,32 +121,30 @@ async function runAct5() {
     {
       question: 'La recette dit : "Mélange 200g de farine, 2 œufs et du lait". Quel ingrédient n\'est PAS dans la recette ?',
       choices: [
-        { text: '🌾 Farine',  correct: false },
-        { text: '🥚 Œufs',   correct: false },
-        { text: '🍫 Chocolat', correct: true },
-        ...(GS.difficulty === 'hard' ? [{ text: '🥛 Lait', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+        { text: '🌾 Farine',   correct: false },
+        { text: '🥚 Œufs',    correct: false },
+        { text: '🍫 Chocolat', correct: true  },
+      ],
       correctMsg: 'Le chocolat n\'est pas dans la recette de galette bretonne !',
     },
     {
-      question: 'La recette dit : "Cuis à la poêle pendant 2 minutes de chaque côté." Combien de minutes au total par galette ?',
+      question: 'La recette dit : "Cuis à la poêle pendant 2 minutes et 40 secondes de chaque côté." Combien de temps au total pour une galette ?',
       choices: [
-        { text: '2 minutes',  correct: false },
-        { text: '4 minutes',  correct: true  },
-        { text: '6 minutes',  correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '8 minutes', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: '2 + 2 = 4 minutes par galette ! Tu sais cuisiner !',
+        { text: '4 minutes',             correct: false },
+        { text: '5 minutes 20 secondes', correct: true  },
+        { text: '6 minutes 20 secondes', correct: false },
+      ],
+      correctMsg: '2 min 40 sec × 2 = 5 minutes 20 secondes ! Tu sais cuisiner !',
     },
     {
-      question: `Mamiya fait 8 galettes. Le dragon ${GS.dragonName} en mange 3. Combien reste-t-il de galettes ?`,
+      question: `Mamiya fait 3 fournées de 4 galettes. Le dragon ${GS.dragonName} en mange 5. Combien reste-t-il de galettes ?`,
       choices: [
-        { text: '3 galettes', correct: false },
-        { text: '5 galettes', correct: true },
-        { text: '8 galettes', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '11 galettes', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: '8 − 3 = 5 galettes ! Et elles sont délicieuses !',
+        { text: '5 galettes',  correct: false },
+        { text: '7 galettes',  correct: true  },
+        { text: '9 galettes',  correct: false },
+        { text: '12 galettes', correct: false },
+      ],
+      correctMsg: '3 × 4 = 12 galettes, moins 5 = 7 galettes ! Excellent !',
     },
   ], '📖 Lecture — La recette de Mamiya', 'fr');
 
@@ -174,29 +160,20 @@ async function runAct5() {
 
   await runExercise({
     lang: 'en',
-    type: GS.difficulty === 'hard' ? 'journal' : 'fillblanks',
+    type: 'fillblanks',
     title: '✏️ Writing — Postcard to Brooklyn 🇺🇸',
-    question: GS.difficulty === 'hard'
-      ? `Write a postcard in English to Gabriel, Adi and Claire! Tell them about your adventure!`
-      : 'Complete the postcard in English for your friends in Brooklyn:',
-    ...(GS.difficulty === 'hard'
-      ? {
-          placeholder: 'Dear Gabriel, Adi and Claire,\nI am in Brittany with my dragon ...',
-          journalLabel: '🇺🇸 Postcard in English',
-        }
-      : {
-          segments: [
-            { text: 'Dear Gabriel, I am in ', isBlank: false },
-            { text: 'Brittany', isBlank: true, answer: 'Brittany' },
-            { text: '. I saved a ', isBlank: false },
-            { text: 'dragon', isBlank: true, answer: 'dragon' },
-            { text: '! It is ', isBlank: false },
-            { text: 'amazing', isBlank: true, answer: 'amazing' },
-            { text: '! Your friend, ', isBlank: false },
-            { text: GS.playerName, isBlank: true, answer: GS.playerName },
-          ],
-          journalLabel: '🇺🇸 Carte postale en anglais',
-        }),
+    question: 'Complete the postcard in English for your friends in Brooklyn:',
+    segments: [
+      { text: 'Dear Gabriel, I am in ', isBlank: false },
+      { text: 'Brittany', isBlank: true, answer: 'Brittany' },
+      { text: '. I saved a ', isBlank: false },
+      { text: 'dragon', isBlank: true, answer: 'dragon' },
+      { text: '! It is ', isBlank: false },
+      { text: 'amazing', isBlank: true, answer: 'amazing' },
+      { text: '! Your friend, ', isBlank: false },
+      { text: GS.playerName, isBlank: true, answer: GS.playerName },
+    ],
+    journalLabel: '🇺🇸 Carte postale en anglais',
   });
 
   // ── Scene 5.4 — EPILOGUE ─────────────────────────────────
@@ -381,15 +358,17 @@ async function runEpilogue() {
     },
     {
       speaker: '🌟 La famille réunie',
-      text: `Papi Jean-Marie et Maminette arrivent depuis Orléans par la route ! Tout le monde est là : Mamiya, Papou, Raphaël, Papi Jean-Marie, Maminette... et ${GS.dragonName} !`,
+      text: `Papi Jean-Marie et Maminette arrivent depuis Orléans par la route ! Et surprise : maman et papa ont pris l'avion depuis New York ! Tout le monde est là : maman, papa, Mamiya, Papou, Raphaël, Papi Jean-Marie, Maminette... et ${GS.dragonName} !`,
       bg: 'brittany',
       characters: [
-        { name:'papi',      x:0.05, y:0.7  },
-        { name:'maminette', x:0.2,  y:0.7  },
-        { name:'mamiya',    x:0.35, y:0.7  },
-        { name:'papou',     x:0.5,  y:0.7  },
-        { name:'raphael',   x:0.65, y:0.7  },
-        { name:'erwan',     x:0.8,  y:0.7  },
+        { name:'maman',     x:0.02, y:0.7  },
+        { name:'papa',      x:0.13, y:0.7  },
+        { name:'papi',      x:0.24, y:0.7  },
+        { name:'maminette', x:0.35, y:0.7  },
+        { name:'mamiya',    x:0.46, y:0.7  },
+        { name:'papou',     x:0.57, y:0.7  },
+        { name:'raphael',   x:0.68, y:0.7  },
+        { name:'erwan',     x:0.82, y:0.7  },
       ],
     },
   ]);

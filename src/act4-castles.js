@@ -29,94 +29,51 @@ async function runAct4() {
   ]);
 
   // Exercise 14 — Reading FR (inscription)
-  const inscriptionText = GS.difficulty === 'easy'
-    ? '"Le dragon dort sous la tour. Seul un chevalier brave peut le sauver."'
-    : '"Le dragon dort sous la tour ronde. Seul un chevalier brave peut briser les chaînes qui l\'emprisonnent."';
-
   await runMCQSequence([
     {
-      question: `L'inscription dit : ${inscriptionText}. Où dort le dragon ?`,
+      question: 'L\'inscription dit : "Le dragon dort sous la tour ronde. Seul un chevalier brave peut briser les chaînes qui l\'emprisonnent." Où dort le dragon ?',
       choices: [
-        { text: 'Dans les douves',  correct: false },
-        { text: 'Sous la tour ronde', correct: true },
+        { text: 'Dans les douves',      correct: false },
+        { text: 'Sous la tour ronde',   correct: true  },
         { text: 'Dans la grande salle', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Dans les écuries', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Sous la tour ronde ! Tu as bien lu l\'inscription !',
     },
     {
       question: 'Qui peut briser les chaînes du dragon ?',
       choices: [
-        { text: 'Le roi de France',   correct: false },
-        { text: 'Un chevalier brave', correct: true  },
+        { text: 'Le roi de France',    correct: false },
+        { text: 'Un chevalier brave',  correct: true  },
         { text: 'Un sorcier puissant', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Une fée magique', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: `Un chevalier brave... comme ${GS.playerName} !`,
     },
   ], '📖 Lecture — Inscription mystérieuse', 'fr');
 
   // Exercise 15 — Writing FR (password)
-  if (GS.difficulty === 'hard') {
-    // Show for 3 seconds then type from memory
-    await runNarration([
-      {
-        speaker: '🔐 Mot de passe secret',
-        text: 'Mémorise ce mot de passe gravé dans la pierre : DRAGON — Tu as 3 secondes !',
-        bg: 'castle',
-        characters: [{ name:'erwan', x:0.5, y:0.65 }],
-      },
-    ]);
-    await runExercise({
-      lang: 'fr',
-      type: 'typing',
-      title: '✏️ Écriture — Mot de passe de mémoire !',
-      question: 'Tape le mot de passe que tu viens de mémoriser (6 lettres) :',
-      answer: 'DRAGON',
-      alternatives: ['dragon'],
-      placeholder: 'Tape le mot de passe...',
-    });
-  } else if (GS.difficulty === 'medium') {
-    await runExercise({
-      lang: 'fr',
-      type: 'fillblanks',
-      title: '✏️ Écriture — Mot de passe de la porte',
-      question: 'Complète le mot de passe gravé dans la pierre :',
-      segments: [
-        { text: 'D', isBlank: false },
-        { text: 'R', isBlank: true, answer: 'R' },
-        { text: 'A', isBlank: false },
-        { text: 'G', isBlank: true, answer: 'G' },
-        { text: 'O', isBlank: false },
-        { text: 'N', isBlank: true, answer: 'N' },
-      ],
-    });
-  } else {
-    // Easy: drag letters
-    await runExercise({
-      lang: 'fr',
-      type: 'dragdrop',
-      title: '✏️ Écriture — Remets les lettres en ordre',
-      question: 'Les lettres du mot de passe sont mélangées ! Remets-les dans le bon ordre :',
-      words: ['D','R','A','G','O','N'].sort(() => Math.random()-0.5),
-      correctOrder: ['D','R','A','G','O','N'],
-    });
-  }
+  await runExercise({
+    lang: 'fr',
+    type: 'fillblanks',
+    title: '✏️ Écriture — Mot de passe de la porte',
+    question: 'Complète le mot de passe gravé dans la pierre :',
+    segments: [
+      { text: 'D', isBlank: false },
+      { text: 'R', isBlank: true, answer: 'R' },
+      { text: 'A', isBlank: false },
+      { text: 'G', isBlank: true, answer: 'G' },
+      { text: 'O', isBlank: false },
+      { text: 'N', isBlank: true, answer: 'N' },
+    ],
+  });
 
   // Exercise 16 — Math FR (castle stairs)
-  const stairQ = {
-    easy: { q: 'La tour du château a 100 marches. Tu en montes 40. Combien en reste-t-il ?', a: 60 },
-    medium: { q: 'La tour a 365 marches (une par jour de l\'année !). Tu en montes 100. Combien en reste-t-il ?', a: 265 },
-    hard: { q: 'La tour a 365 marches. Tu montes 3 fois 45 marches avec des pauses. Combien de marches reste-t-il ?', a: 230 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Les marches du château',
-    question: stairQ.q,
-    answer: stairQ.a,
-    correctMsg: `Bravo ! ${stairQ.a} marches restantes !`,
+    question: 'La tour a 365 marches (une par jour de l\'année !). Tu en montes 100. Combien en reste-t-il ?',
+    answer: 265,
+    correctMsg: 'Bravo ! 365 − 100 = 265 marches restantes !',
   });
 
   // ── Scene 4.2 — The English Gate ─────────────────────────
@@ -135,7 +92,7 @@ async function runAct4() {
     },
     {
       speaker: '👵 Maminette',
-      text: '"Le parchemin magique dit qu\'il faut répondre en anglais pour ouvrir la prochaine porte... on ne comprend pas l\'anglais nous, mais toi c\'est le chevalier !"',
+      text: '"Le parchemin magique dit qu\'il faut répondre en anglais pour ouvrir la prochaine porte... on ne comprend pas l\'anglais nous, mais je suis sûre que notre chevalier saura nous aider !"',
       bg: 'castle',
       characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
     },
@@ -146,44 +103,30 @@ async function runAct4() {
     lang: 'en',
     type: 'mcq',
     title: '📖 Reading — The Castle Door 🇺🇸',
-    question: 'The inscription says: "The brave knight shall open this door." What does it mean in French?',
+    question: 'The inscription says: "The brave knight must open this door." What does it mean in French?',
     choices: [
-      { text: 'Le courageux chevalier ouvrira cette porte.', correct: true },
-      { text: 'Le sorcier fermera cette porte pour toujours.', correct: false },
-      { text: 'Le dragon brisera cette porte cette nuit.', correct: false },
-      ...(GS.difficulty === 'hard' ? [{ text: 'Le chevalier trouvera la clé dans la tour.', correct: false }] : []),
-    ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-    correctMsg: 'Perfect! "The brave knight shall open this door" = Le courageux chevalier ouvrira cette porte !',
+      { text: 'Le courageux chevalier doit ouvrir cette porte.', correct: true  },
+      { text: 'Le sorcier fermera cette porte pour toujours.',   correct: false },
+      { text: 'Le dragon brisera cette porte cette nuit.',       correct: false },
+    ],
+    correctMsg: 'Perfect! "The brave knight must open this door" = Le courageux chevalier doit ouvrir cette porte !',
   });
 
   // Exercise 18 — Writing EN (BRAVE KNIGHT)
-  if (GS.difficulty === 'hard') {
-    await runExercise({
-      lang: 'en',
-      type: 'typing',
-      title: '✏️ Writing — The Password 🇺🇸',
-      question: 'Type the password in English to open the door:',
-      answer: 'BRAVE KNIGHT',
-      alternatives: ['brave knight'],
-      placeholder: 'Type the password...',
-      hint: '💡 Two words: the first means COURAGEUX, the second means CHEVALIER',
-    });
-  } else {
-    await runExercise({
-      lang: 'en',
-      type: 'fillblanks',
-      title: '✏️ Writing — The Password 🇺🇸',
-      question: 'Complete the password to open the door:',
-      segments: [
-        { text: 'B', isBlank: false },
-        { text: 'RA', isBlank: true, answer: 'RA' },
-        { text: 'VE ', isBlank: false },
-        { text: 'KN', isBlank: true, answer: 'KN' },
-        { text: 'I', isBlank: false },
-        { text: 'GHT', isBlank: true, answer: 'GHT' },
-      ],
-    });
-  }
+  await runExercise({
+    lang: 'en',
+    type: 'fillblanks',
+    title: '✏️ Writing — The Password 🇺🇸',
+    question: 'Complete the password to open the door:',
+    segments: [
+      { text: 'B', isBlank: false },
+      { text: 'RA', isBlank: true, answer: 'RA' },
+      { text: 'VE ', isBlank: false },
+      { text: 'KN', isBlank: true, answer: 'KN' },
+      { text: 'I', isBlank: false },
+      { text: 'GHT', isBlank: true, answer: 'GHT' },
+    ],
+  });
 
   // ── Scene 4.3 — BOSS: Sorcier Malfang ───────────────────
   await runNarration([
@@ -215,19 +158,13 @@ async function runAct4() {
   Audio8bit.play('bossDead'); // dramatic intro sound
 
   // Boss Challenge 1 — Math FR
-  const bossQ1 = {
-    easy: { q: 'ÉPREUVE 1 : "J\'ai 5 étoiles magiques et j\'en gagne 8. Combien en ai-je ?" (dit Malfang en ricanant)', a: 13 },
-    medium: { q: 'ÉPREUVE 1 : "J\'ai 3 fois 8 étoiles magiques et j\'en perds 7. Combien en reste-t-il ?" (rit Malfang)', a: 17 },
-    hard: { q: 'ÉPREUVE 1 : "J\'ai 4 fois 9 étoiles. Je t\'en donne la moitié. Combien en reste-t-il chez moi ?" (défie Malfang)', a: 18 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '⚡ ÉPREUVE 1 du Sorcier Malfang !',
-    question: bossQ1.q,
-    answer: bossQ1.a,
-    correctMsg: `✅ ${bossQ1.a} ! Malfang grogne de rage !`,
+    question: 'ÉPREUVE 1 : "J\'ai 3 fois 8 étoiles magiques et j\'en perds 7. Combien en reste-t-il ?" (rit Malfang)',
+    answer: 17,
+    correctMsg: '✅ 17 ! Malfang grogne de rage !',
   });
 
   await runNarration([
@@ -240,28 +177,13 @@ async function runAct4() {
   ]);
 
   // Boss Challenge 2 — Reading FR (drag-drop)
-  const bossWords2 = {
-    easy: {
-      words: ['brave', 'est', 'chevalier', 'Le'],
-      order: ['Le', 'chevalier', 'est', 'brave'],
-    },
-    medium: {
-      words: ['sauver', 'je', 'vais', 'mon', 'dragon'],
-      order: ['je', 'vais', 'sauver', 'mon', 'dragon'],
-    },
-    hard: {
-      words: ['brisera', 'chevalier', 'les', 'brave', 'Le', 'chaînes'],
-      order: ['Le', 'brave', 'chevalier', 'brisera', 'les', 'chaînes'],
-    },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'dragdrop',
     title: '⚡ ÉPREUVE 2 du Sorcier Malfang !',
     question: '"Remets ces mots dans le bon ordre pour former une phrase !" rugit Malfang.',
-    words: bossWords2.words,
-    correctOrder: bossWords2.order,
+    words: ['sauver', 'je', 'vais', 'mon', 'dragon'],
+    correctOrder: ['je', 'vais', 'sauver', 'mon', 'dragon'],
   });
 
   await runNarration([

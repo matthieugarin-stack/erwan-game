@@ -30,8 +30,7 @@ async function runAct2() {
         { text: '🧳 ARRIVÉES',  correct: false },
         { text: '🛫 DÉPARTS',   correct: true  },
         { text: '🚌 NAVETTES',  correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🏨 HÔTELS', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'DÉPARTS ! C\'est là que partent les avions !',
     },
     {
@@ -40,8 +39,7 @@ async function runAct2() {
         { text: 'Zone B — Portes 40-60', correct: false },
         { text: 'Zone A — Portes 1-30',  correct: true  },
         { text: 'Bagages perdus',        correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Zone C — Portes 61-80', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Zone A, portes 1-30 ! La porte 23 est là !',
     },
   ], '📖 Lecture — Panneaux de l\'aéroport JFK 🇫🇷', 'fr');
@@ -56,57 +54,35 @@ async function runAct2() {
     },
   ]);
 
-  const mathQ6 = GS.difficulty === 'easy'
-    ? 'Your flight leaves at 6pm. It is now 4pm. How many hours until your flight?'
-    : 'Your flight leaves at 6:00pm. It is now 3:30pm. How many minutes until your flight?';
-  const mathA6 = GS.difficulty === 'easy' ? 2 : 150;
-  const mathMsg6 = GS.difficulty === 'easy'
-    ? '6pm − 4pm = 2 hours! Great!'
-    : '3:30pm to 6:00pm = 2 hours 30 min = 150 minutes!';
-
   await runExercise({
     lang: 'en',
     type: 'numpad',
     title: '🔢 Math — Flight Time 🇺🇸',
-    question: mathQ6,
-    answer: mathA6,
-    correctMsg: mathMsg6,
+    question: 'Your flight leaves at 6:00pm. It is now 3:30pm. How many minutes until your flight?',
+    answer: 150,
+    correctMsg: '3:30pm to 6:00pm = 2 hours 30 min = 150 minutes!',
   });
 
-  // Exercise 7 — Writing EN
+  // Exercise 7 — Writing EN (complex: name + destination)
   await runExercise({
     lang: 'en',
-    type: GS.difficulty === 'hard' ? 'typing' : 'fillblanks',
+    type: 'fillblanks',
     title: '✏️ Writing — Check-in 🇺🇸',
-    question: GS.difficulty === 'hard'
-      ? `Type your name on the check-in screen and the gate password:`
-      : 'Complete your name on the check-in screen:',
-    ...(GS.difficulty === 'hard'
-      ? {
-          answer: GS.playerName.toUpperCase(),
-          placeholder: 'Type your full name...',
-          hint: `💡 Your name starts with ${GS.playerName[0]}...`,
-        }
-      : {
-          segments: (() => {
-            const name = GS.playerName.toUpperCase();
-            return name.split('').map((ch, i) => ({
-              text: ch,
-              isBlank: i % 2 === 1,
-              answer: i % 2 === 1 ? ch : '',
-            })).filter(s => s.text).map((s, i, arr) => {
-              if (!s.isBlank) return { text: s.text, isBlank: false };
-              return s;
-            });
-          })(),
-        }),
+    question: 'Complete the check-in screen with your name and your destination:',
+    segments: [
+      { text: 'PASSENGER: ', isBlank: false },
+      { text: GS.playerName.toUpperCase(), isBlank: true, answer: GS.playerName.toUpperCase() },
+      { text: ' — DESTINATION: ', isBlank: false },
+      { text: 'PARIS', isBlank: true, answer: 'PARIS' },
+      { text: ' — GATE: 23', isBlank: false },
+    ],
   });
 
   // ── Scene 2.2 — In the Airplane ─────────────────────────
   await runNarration([
     {
       speaker: '✈️ Dans l\'avion',
-      text: 'L\'avion décolle ! New York disparaît sous les nuages. Erwan regarde par le hublot. Première fois dans un avion tout seul !',
+      text: 'L\'avion décolle ! New York disparaît sous les nuages. Erwan regarde par le hublot. C\'est la troisième fois qu\'il prend l\'avion tout seul !',
       bg: 'plane_interior',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
@@ -129,26 +105,20 @@ async function runAct2() {
     lang: 'fr',
     type: 'journal',
     title: '📔 Journal de bord — Dans l\'avion',
-    question: 'Écris dans ton journal de bord ! Complète les phrases :',
-    hint: `💡 Tu peux écrire: "Je suis dans l'avion. Je vole vers la France. Je vais sauver ${GS.dragonName}."`,
-    placeholder: `Je suis dans l'avion. Je vole vers ___. Je vais sauver ___.`,
+    question: 'Écris dans ton journal de bord ! Décris ce que tu vois et ce que tu ressens :',
+    hint: `💡 Tu peux écrire : "Je suis dans l'avion au-dessus de l'Atlantique. Par le hublot, je vois les nuages. Je ressens... Je pense à ${GS.dragonName} qui m'attend..."`,
+    placeholder: `Je suis dans l'avion au-dessus de l'Atlantique. Par le hublot, je vois...`,
     journalLabel: '✈️ Dans l\'avion',
   });
 
   // Exercise 9 — Math FR (flight duration)
-  const flightQ = {
-    easy: { q: 'Le vol dure 7 heures. Tu as déjà volé 3 heures. Combien d\'heures reste-t-il ?', a: 4 },
-    medium: { q: 'L\'avion part à 18h et arrive à 1h du matin (heure de Paris). Combien d\'heures dure le vol ?', a: 7 },
-    hard: { q: `L'avion vole à 900 km/h. Paris est à 5 400 km de New York. Combien d'heures dure le vol ?`, a: 6 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Durée du vol',
-    question: flightQ.q,
-    answer: flightQ.a,
-    correctMsg: `Excellent ! La réponse est ${flightQ.a} !`,
+    question: 'L\'avion part à 18h (heure de New York) et atterrit à 1h du matin (heure de New York). Combien d\'heures dure le vol ?',
+    answer: 7,
+    correctMsg: 'De 18h à 1h du matin = 7 heures de vol !',
   });
 
   // Mini-game: Catch cloud syllables to spell the dragon's name

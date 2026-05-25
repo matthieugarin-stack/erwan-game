@@ -59,7 +59,6 @@ html, body {
 #hud-hearts { font-size: 20px; letter-spacing: 2px; min-width: 70px; }
 #hud-stars  { color: var(--pixel-gold); font-size: 15px; font-weight: bold; min-width: 80px; }
 #hud-act    { flex: 1; text-align: center; font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-#hud-level  { font-size: 14px; min-width: 60px; text-align: right; }
 #btn-journal, #btn-home {
   background: var(--pixel-border);
   border: 2px solid var(--pixel-gold);
@@ -211,19 +210,6 @@ html, body {
   padding: 8px 16px;
   min-height: 36px;
 }
-.btn-parents {
-  position: absolute; top: 8px; right: 8px;
-  background: transparent;
-  border: 1px solid #333;
-  color: #555;
-  font-size: 11px;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-family: var(--font-pixel);
-  border-radius: 3px;
-}
-.btn-parents:hover { color: #999; border-color: #666; }
-
 /* ── DIALOGUE BOX ─────────────────────────────────────── */
 .dialogue-box {
   background: var(--pixel-panel);
@@ -486,43 +472,6 @@ html, body {
 }
 .journal-entry-label { color: var(--pixel-gold); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
 
-/* ── PIN MODAL ────────────────────────────────────────── */
-#pin-modal {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  align-items: center; justify-content: center;
-  z-index: 500;
-}
-#pin-modal.show { display: flex; }
-.pin-box {
-  background: var(--pixel-panel);
-  border: 3px solid var(--pixel-border);
-  padding: 24px; border-radius: 4px;
-  display: flex; flex-direction: column; gap: 16px;
-  min-width: 280px;
-}
-.pin-title { font-size: 16px; color: var(--pixel-gold); text-align: center; }
-
-/* ── SETTINGS PANEL ───────────────────────────────────── */
-#settings-panel {
-  display: none; flex-direction: column; gap: 14px;
-}
-#settings-panel.show { display: flex; }
-.difficulty-btn {
-  font-family: var(--font-pixel);
-  font-size: 14px;
-  padding: 12px 16px;
-  border: 2px solid var(--pixel-border);
-  background: #0a0a1a;
-  color: var(--pixel-text);
-  cursor: pointer;
-  border-radius: 3px;
-  text-align: left;
-  transition: border-color 0.2s, background 0.2s;
-}
-.difficulty-btn.selected { border-color: var(--pixel-gold); background: #1a1a00; color: var(--pixel-gold); }
-
 /* ── MINI MAP ─────────────────────────────────────────── */
 #mini-map-canvas {
   width: 100%; max-width: 400px;
@@ -599,7 +548,6 @@ html, body {
     <div id="hud-hearts">❤️❤️❤️</div>
     <div id="hud-stars">⭐ 0</div>
     <div id="hud-act">Prêt à l'aventure !</div>
-    <div id="hud-level">⚔️⚔️</div>
     <button id="btn-journal" onclick="showJournal()" title="Journal de bord">📔</button>
     <button id="btn-home" onclick="confirmRestart()" title="Recommencer depuis le début">🏠</button>
   </div>
@@ -650,8 +598,6 @@ html, body {
           </div>
           <button class="btn btn-primary" onclick="startGame()">⚔️ COMMENCER L'AVENTURE !</button>
         </div>
-
-        <button class="btn-parents" onclick="openParentMenu()">⚙️ Parents</button>
       </div>
 
       <!-- ── NARRATION SCREEN ──────────────────────────── -->
@@ -781,34 +727,6 @@ html, body {
 <!-- Transition overlay -->
 <div id="transition-overlay">
   <div class="transition-icon" id="transition-icon">✈️</div>
-</div>
-
-<!-- PIN Modal -->
-<div id="pin-modal">
-  <div class="pin-box">
-    <div class="pin-title">⚙️ Menu Parents</div>
-    <div id="pin-section">
-      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px;">Code PIN :</label>
-      <input class="pixel-input" id="pin-input" type="password" maxlength="4" placeholder="••••">
-      <div id="pin-error" style="color:#e74c3c;font-size:12px;margin-top:4px;min-height:16px;"></div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="btn btn-primary" style="flex:1" onclick="checkPin()">Valider</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('pin-modal').classList.remove('show')">Annuler</button>
-      </div>
-    </div>
-    <div class="settings-panel" id="settings-panel">
-      <div style="font-size:14px;color:#ffd700;margin-bottom:8px;">Niveau de difficulté :</div>
-      <button class="difficulty-btn" data-diff="easy"   onclick="setDifficulty('easy')">⚔️ Simple — Pour débuter</button>
-      <button class="difficulty-btn selected" data-diff="medium" onclick="setDifficulty('medium')">⚔️⚔️ Moyen — Recommandé ✓</button>
-      <button class="difficulty-btn" data-diff="hard"   onclick="setDifficulty('hard')">⚔️⚔️⚔️ Complexe — Défi !</button>
-      <div style="font-size:11px;color:#666;margin-top:8px;line-height:1.5;">
-        Le niveau affecte la longueur des textes, la complexité des maths et le type d'exercices d'écriture.
-      </div>
-      <button class="btn btn-primary" onclick="document.getElementById('pin-modal').classList.remove('show');document.getElementById('pin-section').style.display='';document.getElementById('settings-panel').classList.remove('show');" style="margin-top:8px;">
-        ✓ Enregistrer et fermer
-      </button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -1111,6 +1029,31 @@ const Sprites = (() => {
     [K,_,_,  K,  _,  K,  _,_,K],
   ];
 
+  // ── MAMAN (mum from NYC) ─────────────────────────────────
+  const MAMAN = [
+    [_,_,P,  P,  P,_,_],
+    [_,P,SK, SK, SK,P,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,GR,GR, GR,_,_],
+    [_,LB,LB,LB,LB,LB,_],
+    [_,LB,LB,LB,LB,LB,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,LB,_,  LB,_,_],
+  ];
+  // ── PAPA (dad from NYC) ──────────────────────────────────
+  const PAPA = [
+    [_,_,K,  K,  K,_,_],
+    [_,K,SK, SK, SK,K,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,GR,GR, GR,_,_],
+    [_,B, B,  B,  B, B,_],
+    [_,B, B,  B,  B, B,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,K,  _,  K, _,_],
+  ];
+
   // ── Backgrounds ──────────────────────────────────────────
   function drawBackground(ctx, W, H, type) {
     ctx.clearRect(0, 0, W, H);
@@ -1352,6 +1295,7 @@ const Sprites = (() => {
       erwan: ERWAN, papi: PAPI, maminette: MAMINETTE,
       mamiya: MAMIYA, papou: PAPOU, raphael: RAPHAEL,
       gabriel: GABRIEL, adi: ADI, claire: CLAIRE, malfang: MALFANG,
+      maman: MAMAN, papa: PAPA,
     };
     const s = spriteMap[name];
     if (!s) return;
@@ -1445,7 +1389,6 @@ const Sprites = (() => {
 const GS = {
   playerName: 'Erwan',
   dragonName: '',
-  difficulty: 'medium',    // 'easy' | 'medium' | 'hard'
   stars: 0,
   hearts: 3,
   actIndex: 0,             // 0-4 = acts 1-5
@@ -1465,7 +1408,6 @@ function initDOM() {
   DOM.hudHearts  = document.getElementById('hud-hearts');
   DOM.hudStars   = document.getElementById('hud-stars');
   DOM.hudAct     = document.getElementById('hud-act');
-  DOM.hudLevel   = document.getElementById('hud-level');
   DOM.mainCanvas = document.getElementById('main-canvas');
   DOM.ctx        = DOM.mainCanvas.getContext('2d');
   DOM.dragonCanvas = document.getElementById('dragon-canvas');
@@ -1479,7 +1421,6 @@ function initDOM() {
   DOM.celebration  = document.getElementById('celebration');
   DOM.transOverlay = document.getElementById('transition-overlay');
   DOM.transIcon    = document.getElementById('transition-icon');
-  DOM.pinModal     = document.getElementById('pin-modal');
 }
 
 // ── HUD Update ───────────────────────────────────────────────
@@ -1488,8 +1429,6 @@ function updateHUD() {
   DOM.hudStars.textContent  = `⭐ ${GS.stars}`;
   const actNames = ['Act 1: Brooklyn','Act 2: Avion','Act 3: Paris','Act 4: Loire','Act 5: Bretagne'];
   DOM.hudAct.textContent = actNames[GS.actIndex] || '';
-  const levels = { easy:'⚔️', medium:'⚔️⚔️', hard:'⚔️⚔️⚔️' };
-  DOM.hudLevel.textContent = levels[GS.difficulty];
   // Dragon panel
   DOM.dragonName.textContent = GS.dragonName ? `🐉 ${GS.dragonName}` : '🐉 ???';
   const statuses = [
@@ -1676,35 +1615,6 @@ function closeJournal() {
   _journalPrev = null;
 }
 
-// ── PIN & Parent Settings ─────────────────────────────────────
-function openParentMenu() {
-  DOM.pinModal.classList.add('show');
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-error').textContent = '';
-  document.getElementById('settings-panel').classList.remove('show');
-}
-function checkPin() {
-  const val = document.getElementById('pin-input').value;
-  if (val === '1234') {
-    document.getElementById('pin-section').style.display = 'none';
-    document.getElementById('settings-panel').classList.add('show');
-    updateDifficultyButtons();
-  } else {
-    document.getElementById('pin-error').textContent = 'Code incorrect !';
-    Audio8bit.play('wrong');
-  }
-}
-function setDifficulty(d) {
-  GS.difficulty = d;
-  updateDifficultyButtons();
-  Audio8bit.play('click');
-}
-function updateDifficultyButtons() {
-  document.querySelectorAll('.difficulty-btn').forEach(b => {
-    b.classList.toggle('selected', b.dataset.diff === GS.difficulty);
-  });
-}
-
 // ── Exercise Engine ────────────────────────────────────────────
 //
 // exerciseDef = {
@@ -1744,9 +1654,8 @@ function runExercise(def) {
 
 function renderExercise(def) {
   const panel = document.getElementById('exercise-panel');
-  const levels = { easy:'⚔️ Simple', medium:'⚔️⚔️ Moyen', hard:'⚔️⚔️⚔️ Complexe' };
   panel.innerHTML = `
-    <div class="exercise-title">${def.title} <span style="float:right;font-size:11px">${levels[GS.difficulty]}</span></div>
+    <div class="exercise-title">${def.title}</div>
     <div class="exercise-question">${def.question}</div>
     <div id="ex-content"></div>
     <div class="exercise-feedback" id="ex-feedback"></div>
@@ -2257,28 +2166,25 @@ async function runAct1() {
         { text: '🔴 Rouge et blanc', correct: false },
         { text: '🟠 Orange et bleu', correct: true  },
         { text: '🟢 Vert et noir',   correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🟡 Jaune et violet', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Oui ! Orange et bleu, les couleurs des New York Knicks !',
     },
     {
       question: 'Qui a envoyé le parchemin magique à Erwan ?',
       choices: [
-        { text: 'Gabriel',       correct: false },
-        { text: 'Mamiya',        correct: true  },
+        { text: 'Gabriel',         correct: false },
+        { text: 'Mamiya',          correct: true  },
         { text: 'Papi Jean-Marie', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Le dragon', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Oui ! C\'est Mamiya, la grand-mère de Bretagne !',
     },
     {
       question: 'Où est emprisonné le dragon ?',
       choices: [
-        { text: 'À Brooklyn',             correct: false },
-        { text: 'Dans un château de la Loire', correct: true },
-        { text: 'En Bretagne',            correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'À Paris', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+        { text: 'À Brooklyn',                  correct: false },
+        { text: 'Dans un château de la Loire', correct: true  },
+        { text: 'En Bretagne',                 correct: false },
+      ],
       correctMsg: 'Bravo ! Dans un château de la Loire !',
     },
   ], '📖 Lecture — La chambre d\'Erwan', 'fr');
@@ -2325,28 +2231,23 @@ async function runAct1() {
     },
   ]);
 
-  // Exercise 3 — Writing FR (fill blanks)
-  // Gabriel a dit "Sois courageux !", Adi "Bonne chance !", Claire "Reviens vite !"
+  // Exercise 3 — Writing FR (fill blanks — exact quotes)
   await runExercise({
     lang: 'fr',
     type: 'fillblanks',
-    title: '✏️ Écriture — Les mots de tes amis',
-    question: 'Gabriel, Adi et Claire t\'ont dit ces mots. Complète les lettres qui manquent :',
-    segments: GS.difficulty === 'easy'
-      ? [
-          { text: 'Gabriel : "Sois cou', isBlank: false },
-          { text: 'ra', isBlank: true, answer: 'ra' },
-          { text: 'geux !"', isBlank: false },
-        ]
-      : [
-          { text: 'Gabriel : "Sois ', isBlank: false },
-          { text: 'courageux', isBlank: true, answer: 'courageux' },
-          { text: ' !" — Adi : "Bonne ', isBlank: false },
-          { text: 'chance', isBlank: true, answer: 'chance' },
-          { text: ' !" — Claire : "Reviens ', isBlank: false },
-          { text: 'vite', isBlank: true, answer: 'vite' },
-          { text: ' !"', isBlank: false },
-        ],
+    title: '✏️ Écriture — Ce qu\'ont dit tes amis',
+    question: 'Rappelle-toi ce que t\'ont dit tes amis ! Complète leurs paroles :',
+    segments: [
+      { text: 'Gabriel : "J\'ai écrit un ', isBlank: false },
+      { text: 'message', isBlank: true, answer: 'message' },
+      { text: ' pour toi !"', isBlank: false },
+      { text: ' — Adi : "Elle te rendra ', isBlank: false },
+      { text: 'invisible', isBlank: true, answer: 'invisible' },
+      { text: ' !"', isBlank: false },
+      { text: ' — Claire : "Bon ', isBlank: false },
+      { text: 'voyage', isBlank: true, answer: 'voyage' },
+      { text: ' !"', isBlank: false },
+    ],
   });
 
   // Exercise 3b — Type school name
@@ -2362,7 +2263,6 @@ async function runAct1() {
   });
 
   // Exercise 4 — Reading FR (drag-drop)
-  // Sentence: "Tu vas sauver le dragon, brave chevalier !"
   await runExercise({
     lang: 'fr',
     type: 'dragdrop',
@@ -2426,8 +2326,7 @@ async function runAct2() {
         { text: '🧳 ARRIVÉES',  correct: false },
         { text: '🛫 DÉPARTS',   correct: true  },
         { text: '🚌 NAVETTES',  correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🏨 HÔTELS', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'DÉPARTS ! C\'est là que partent les avions !',
     },
     {
@@ -2436,8 +2335,7 @@ async function runAct2() {
         { text: 'Zone B — Portes 40-60', correct: false },
         { text: 'Zone A — Portes 1-30',  correct: true  },
         { text: 'Bagages perdus',        correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Zone C — Portes 61-80', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Zone A, portes 1-30 ! La porte 23 est là !',
     },
   ], '📖 Lecture — Panneaux de l\'aéroport JFK 🇫🇷', 'fr');
@@ -2452,57 +2350,35 @@ async function runAct2() {
     },
   ]);
 
-  const mathQ6 = GS.difficulty === 'easy'
-    ? 'Your flight leaves at 6pm. It is now 4pm. How many hours until your flight?'
-    : 'Your flight leaves at 6:00pm. It is now 3:30pm. How many minutes until your flight?';
-  const mathA6 = GS.difficulty === 'easy' ? 2 : 150;
-  const mathMsg6 = GS.difficulty === 'easy'
-    ? '6pm − 4pm = 2 hours! Great!'
-    : '3:30pm to 6:00pm = 2 hours 30 min = 150 minutes!';
-
   await runExercise({
     lang: 'en',
     type: 'numpad',
     title: '🔢 Math — Flight Time 🇺🇸',
-    question: mathQ6,
-    answer: mathA6,
-    correctMsg: mathMsg6,
+    question: 'Your flight leaves at 6:00pm. It is now 3:30pm. How many minutes until your flight?',
+    answer: 150,
+    correctMsg: '3:30pm to 6:00pm = 2 hours 30 min = 150 minutes!',
   });
 
-  // Exercise 7 — Writing EN
+  // Exercise 7 — Writing EN (complex: name + destination)
   await runExercise({
     lang: 'en',
-    type: GS.difficulty === 'hard' ? 'typing' : 'fillblanks',
+    type: 'fillblanks',
     title: '✏️ Writing — Check-in 🇺🇸',
-    question: GS.difficulty === 'hard'
-      ? `Type your name on the check-in screen and the gate password:`
-      : 'Complete your name on the check-in screen:',
-    ...(GS.difficulty === 'hard'
-      ? {
-          answer: GS.playerName.toUpperCase(),
-          placeholder: 'Type your full name...',
-          hint: `💡 Your name starts with ${GS.playerName[0]}...`,
-        }
-      : {
-          segments: (() => {
-            const name = GS.playerName.toUpperCase();
-            return name.split('').map((ch, i) => ({
-              text: ch,
-              isBlank: i % 2 === 1,
-              answer: i % 2 === 1 ? ch : '',
-            })).filter(s => s.text).map((s, i, arr) => {
-              if (!s.isBlank) return { text: s.text, isBlank: false };
-              return s;
-            });
-          })(),
-        }),
+    question: 'Complete the check-in screen with your name and your destination:',
+    segments: [
+      { text: 'PASSENGER: ', isBlank: false },
+      { text: GS.playerName.toUpperCase(), isBlank: true, answer: GS.playerName.toUpperCase() },
+      { text: ' — DESTINATION: ', isBlank: false },
+      { text: 'PARIS', isBlank: true, answer: 'PARIS' },
+      { text: ' — GATE: 23', isBlank: false },
+    ],
   });
 
   // ── Scene 2.2 — In the Airplane ─────────────────────────
   await runNarration([
     {
       speaker: '✈️ Dans l\'avion',
-      text: 'L\'avion décolle ! New York disparaît sous les nuages. Erwan regarde par le hublot. Première fois dans un avion tout seul !',
+      text: 'L\'avion décolle ! New York disparaît sous les nuages. Erwan regarde par le hublot. C\'est la troisième fois qu\'il prend l\'avion tout seul !',
       bg: 'plane_interior',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
@@ -2525,26 +2401,20 @@ async function runAct2() {
     lang: 'fr',
     type: 'journal',
     title: '📔 Journal de bord — Dans l\'avion',
-    question: 'Écris dans ton journal de bord ! Complète les phrases :',
-    hint: `💡 Tu peux écrire: "Je suis dans l'avion. Je vole vers la France. Je vais sauver ${GS.dragonName}."`,
-    placeholder: `Je suis dans l'avion. Je vole vers ___. Je vais sauver ___.`,
+    question: 'Écris dans ton journal de bord ! Décris ce que tu vois et ce que tu ressens :',
+    hint: `💡 Tu peux écrire : "Je suis dans l'avion au-dessus de l'Atlantique. Par le hublot, je vois les nuages. Je ressens... Je pense à ${GS.dragonName} qui m'attend..."`,
+    placeholder: `Je suis dans l'avion au-dessus de l'Atlantique. Par le hublot, je vois...`,
     journalLabel: '✈️ Dans l\'avion',
   });
 
   // Exercise 9 — Math FR (flight duration)
-  const flightQ = {
-    easy: { q: 'Le vol dure 7 heures. Tu as déjà volé 3 heures. Combien d\'heures reste-t-il ?', a: 4 },
-    medium: { q: 'L\'avion part à 18h et arrive à 1h du matin (heure de Paris). Combien d\'heures dure le vol ?', a: 7 },
-    hard: { q: `L'avion vole à 900 km/h. Paris est à 5 400 km de New York. Combien d'heures dure le vol ?`, a: 6 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Durée du vol',
-    question: flightQ.q,
-    answer: flightQ.a,
-    correctMsg: `Excellent ! La réponse est ${flightQ.a} !`,
+    question: 'L\'avion part à 18h (heure de New York) et atterrit à 1h du matin (heure de New York). Combien d\'heures dure le vol ?',
+    answer: 7,
+    correctMsg: 'De 18h à 1h du matin = 7 heures de vol !',
   });
 
   // Mini-game: Catch cloud syllables to spell the dragon's name
@@ -2712,7 +2582,7 @@ async function runAct3() {
     },
     {
       speaker: '🧓 Papi Jean-Marie',
-      text: `Mon grand chevalier ! Bienvenue en France ! Maminette et moi on t'a apporté des croissants ! Et la 2CV est en pleine forme !`,
+      text: `Mon grand chevalier ! Bienvenue en France ! Maminette et moi on t'a apporté des croissants frais — ça va te changer des donuts américains !`,
       bg: 'paris',
       characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
     },
@@ -2732,8 +2602,7 @@ async function runAct3() {
         { text: '🛫 DÉPARTS',  correct: false },
         { text: '🧳 BAGAGES',  correct: true  },
         { text: '🚌 NAVETTES', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🏨 HÔTELS', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'BAGAGES ! C\'est là que tu récupères ta valise !',
     },
     {
@@ -2742,8 +2611,7 @@ async function runAct3() {
         { text: '🧳 BAGAGES',  correct: false },
         { text: '🚪 SORTIE',   correct: true  },
         { text: '✈️ ARRIVÉES', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🛒 BOUTIQUES', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'SORTIE ! Papi Jean-Marie est dehors, il t\'attend !',
     },
   ], '📖 Lecture — Panneaux de CDG 🇫🇷', 'fr');
@@ -2752,7 +2620,7 @@ async function runAct3() {
   await runNarration([
     {
       speaker: '📮 Carte postale',
-      text: 'Pendant que Papi charge les bagages dans la 2CV, tu écris une carte postale à Gabriel !',
+      text: 'Pendant que Papi charge les bagages dans la voiture, tu écris une carte postale à Gabriel !',
       bg: 'paris',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
@@ -2763,33 +2631,23 @@ async function runAct3() {
     type: 'fillblanks',
     title: '✏️ Écriture — Carte postale à Gabriel',
     question: 'Complète la carte postale pour Gabriel :',
-    segments: GS.difficulty === 'easy'
-      ? [
-          { text: 'Je suis arri', isBlank: false },
-          { text: 'vé', isBlank: true, answer: 'vé' },
-          { text: ' à Par', isBlank: false },
-          { text: 'is', isBlank: true, answer: 'is' },
-          { text: '. Il y a la Tour Eif', isBlank: false },
-          { text: 'fel', isBlank: true, answer: 'fel' },
-          { text: '!', isBlank: false },
-        ]
-      : [
-          { text: 'Je suis ', isBlank: false },
-          { text: 'arrivé', isBlank: true, answer: 'arrivé' },
-          { text: ' à ', isBlank: false },
-          { text: 'Paris', isBlank: true, answer: 'Paris' },
-          { text: '. Il y a la Tour ', isBlank: false },
-          { text: 'Eiffel', isBlank: true, answer: 'Eiffel' },
-          { text: ' !', isBlank: false },
-        ],
+    segments: [
+      { text: 'Je suis ', isBlank: false },
+      { text: 'arrivé', isBlank: true, answer: 'arrivé' },
+      { text: ' à ', isBlank: false },
+      { text: 'Paris', isBlank: true, answer: 'Paris' },
+      { text: '. Il y a la Tour ', isBlank: false },
+      { text: 'Eiffel', isBlank: true, answer: 'Eiffel' },
+      { text: ' !', isBlank: false },
+    ],
     journalLabel: '📮 Carte postale de Paris',
   });
 
   // ── Scene 3.2 — Route vers Orléans ──────────────────────
   await runNarration([
     {
-      speaker: '🚗 Dans la 2CV !',
-      text: 'La vieille 2CV de Papi Jean-Marie roule vers Orléans. Le moteur fait un bruit rigolo : "VROUUUUUN VROUUUUN" !',
+      speaker: '🚗 Sur la route !',
+      text: 'La nouvelle voiture électrique de Papi Jean-Marie roule silencieusement vers Orléans. On n\'entend que le vent et les oiseaux — c\'est magique !',
       bg: 'road',
       characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
     },
@@ -2808,44 +2666,47 @@ async function runAct3() {
   ]);
 
   // Exercise 12 — Math FR (distance)
-  const distQ = {
-    easy: { q: 'Orléans est à 130 km de Paris. On a déjà fait 65 km. Combien de km reste-t-il ?', a: 65 },
-    medium: { q: 'Orléans est à 130 km. On a déjà fait 65 km. Combien de km reste-t-il ?', a: 65 },
-    hard: { q: 'On roule à 110 km/h. Orléans est à 130 km. Papi s\'arrête après 65 km. On reprend à 110 km/h. Combien de minutes pour le reste du trajet ? (arrondi à l\'unité)', a: 35 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — La route pour Orléans',
-    question: distQ.q,
-    answer: distQ.a,
-    correctMsg: `Bravo ! La réponse est ${distQ.a} !`,
+    question: 'Orléans est à 130 km de Paris. On a déjà fait 65 km. Combien de km reste-t-il ?',
+    answer: 65,
+    correctMsg: 'Bravo ! Il reste 65 km !',
   });
 
-  // Exercise 13 — Reading FR (dragon book)
+  // Exercise 13 — Dragon book (narration + typing + English MCQ)
+  await runNarration([
+    {
+      speaker: '👵 Maminette (lit un livre)',
+      text: '"Tiens, j\'ai trouvé un livre sur les dragons de la Loire ! Il dit : les dragons mangent des étoiles magiques... et pour libérer un dragon prisonnier, il faut absolument connaître son nom !" Maminette sourit : "Tu vois pourquoi on a donné un nom à ton dragon ?"',
+      bg: 'road',
+      characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  await runExercise({
+    lang: 'fr',
+    type: 'typing',
+    title: '📖 Lecture — Le livre des dragons',
+    question: 'Maminette vient de lire que les dragons de la Loire mangent des... Écris ce qu\'ils mangent :',
+    answer: 'étoiles magiques',
+    alternatives: ['etoiles magiques', 'étoiles magique', 'etoile magique', 'etoiles magique'],
+    placeholder: 'Tape la réponse...',
+    hint: '💡 Maminette vient de lire la réponse à voix haute !',
+  });
+
   await runMCQSequence([
     {
-      question: 'Maminette lit : "Les dragons de la Loire vivent dans les tours rondes et mangent des...". Quel mot manque ?',
+      question: 'The book says: "To free a dragon, a brave knight must know its..." What is missing?',
       choices: [
-        { text: '🍕 pizzas',    correct: false },
-        { text: '🧀 fromages',  correct: false },
-        { text: '🌟 étoiles magiques', correct: true },
-        ...(GS.difficulty === 'hard' ? [{ text: '🐟 poissons', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: 'Des étoiles magiques ! Comme tes étoiles Knicks !',
+        { text: '😴 Sleep schedule', correct: false },
+        { text: '🔤 Name',           correct: true  },
+        { text: '📚 Favourite book', correct: false },
+      ],
+      correctMsg: `Yes! You must know its name! That's why your dragon is called "${GS.dragonName}"!`,
     },
-    {
-      question: 'Le livre dit : "Pour libérer un dragon, il faut être brave et..." ?',
-      choices: [
-        { text: '😴 dormir beaucoup', correct: false },
-        { text: '📚 lire beaucoup',   correct: false },
-        { text: '💪 connaître son nom', correct: true },
-        ...(GS.difficulty === 'hard' ? [{ text: '🏃 courir vite', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: `Oui ! Connaître son nom ! C'est pour ça qu'on a appelé ton dragon "${GS.dragonName}" !`,
-    },
-  ], '📖 Lecture — Le livre sur les dragons', 'fr');
+  ], '📖 Reading — The Dragon Book 🇺🇸', 'en');
 
   // Mini-game: Map of France — click cities
   await runMapGame();
@@ -2868,11 +2729,12 @@ function runMapGame() {
     const instrEl = document.getElementById('mg-instr');
 
     titleEl.textContent = '🗺️ Carte de France !';
-    instrEl.textContent = 'Clique sur les villes dans l\'ordre : Paris → Orléans';
+    instrEl.textContent = 'Clique sur les villes dans l\'ordre : Paris → Orléans → Lorient';
 
     const cities = [
-      { name:'Paris',   px:0.48, py:0.28, done:false, step:0 },
-      { name:'Orléans', px:0.47, py:0.38, done:false, step:1 },
+      { name:'Paris',   px:0.48, py:0.28, done:false },
+      { name:'Orléans', px:0.47, py:0.38, done:false },
+      { name:'Lorient', px:0.22, py:0.62, done:false },
     ];
     let step = 0;
 
@@ -2889,17 +2751,23 @@ function runMapGame() {
       ctx.ellipse(W*0.48, H*0.5, W*0.28, H*0.38, 0, 0, Math.PI*2);
       ctx.fill();
 
-      // Route line if Paris done
+      // Route lines for completed segments
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6,4]);
       if (step >= 1) {
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([6,4]);
         ctx.beginPath();
         ctx.moveTo(cities[0].px*W, cities[0].py*H);
         ctx.lineTo(cities[1].px*W, cities[1].py*H);
         ctx.stroke();
-        ctx.setLineDash([]);
       }
+      if (step >= 2) {
+        ctx.beginPath();
+        ctx.moveTo(cities[1].px*W, cities[1].py*H);
+        ctx.lineTo(cities[2].px*W, cities[2].py*H);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
 
       // Cities
       cities.forEach((city, i) => {
@@ -2914,6 +2782,7 @@ function runMapGame() {
         ctx.textAlign = 'left';
         ctx.fillText(city.name, x + 14, y + 5);
         if (city.done) {
+          ctx.fillStyle = '#2ecc40';
           ctx.fillText('✓', x - 5, y + 5);
         }
       });
@@ -2991,94 +2860,51 @@ async function runAct4() {
   ]);
 
   // Exercise 14 — Reading FR (inscription)
-  const inscriptionText = GS.difficulty === 'easy'
-    ? '"Le dragon dort sous la tour. Seul un chevalier brave peut le sauver."'
-    : '"Le dragon dort sous la tour ronde. Seul un chevalier brave peut briser les chaînes qui l\'emprisonnent."';
-
   await runMCQSequence([
     {
-      question: `L'inscription dit : ${inscriptionText}. Où dort le dragon ?`,
+      question: 'L\'inscription dit : "Le dragon dort sous la tour ronde. Seul un chevalier brave peut briser les chaînes qui l\'emprisonnent." Où dort le dragon ?',
       choices: [
-        { text: 'Dans les douves',  correct: false },
-        { text: 'Sous la tour ronde', correct: true },
+        { text: 'Dans les douves',      correct: false },
+        { text: 'Sous la tour ronde',   correct: true  },
         { text: 'Dans la grande salle', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Dans les écuries', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'Sous la tour ronde ! Tu as bien lu l\'inscription !',
     },
     {
       question: 'Qui peut briser les chaînes du dragon ?',
       choices: [
-        { text: 'Le roi de France',   correct: false },
-        { text: 'Un chevalier brave', correct: true  },
+        { text: 'Le roi de France',    correct: false },
+        { text: 'Un chevalier brave',  correct: true  },
         { text: 'Un sorcier puissant', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: 'Une fée magique', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: `Un chevalier brave... comme ${GS.playerName} !`,
     },
   ], '📖 Lecture — Inscription mystérieuse', 'fr');
 
   // Exercise 15 — Writing FR (password)
-  if (GS.difficulty === 'hard') {
-    // Show for 3 seconds then type from memory
-    await runNarration([
-      {
-        speaker: '🔐 Mot de passe secret',
-        text: 'Mémorise ce mot de passe gravé dans la pierre : DRAGON — Tu as 3 secondes !',
-        bg: 'castle',
-        characters: [{ name:'erwan', x:0.5, y:0.65 }],
-      },
-    ]);
-    await runExercise({
-      lang: 'fr',
-      type: 'typing',
-      title: '✏️ Écriture — Mot de passe de mémoire !',
-      question: 'Tape le mot de passe que tu viens de mémoriser (6 lettres) :',
-      answer: 'DRAGON',
-      alternatives: ['dragon'],
-      placeholder: 'Tape le mot de passe...',
-    });
-  } else if (GS.difficulty === 'medium') {
-    await runExercise({
-      lang: 'fr',
-      type: 'fillblanks',
-      title: '✏️ Écriture — Mot de passe de la porte',
-      question: 'Complète le mot de passe gravé dans la pierre :',
-      segments: [
-        { text: 'D', isBlank: false },
-        { text: 'R', isBlank: true, answer: 'R' },
-        { text: 'A', isBlank: false },
-        { text: 'G', isBlank: true, answer: 'G' },
-        { text: 'O', isBlank: false },
-        { text: 'N', isBlank: true, answer: 'N' },
-      ],
-    });
-  } else {
-    // Easy: drag letters
-    await runExercise({
-      lang: 'fr',
-      type: 'dragdrop',
-      title: '✏️ Écriture — Remets les lettres en ordre',
-      question: 'Les lettres du mot de passe sont mélangées ! Remets-les dans le bon ordre :',
-      words: ['D','R','A','G','O','N'].sort(() => Math.random()-0.5),
-      correctOrder: ['D','R','A','G','O','N'],
-    });
-  }
+  await runExercise({
+    lang: 'fr',
+    type: 'fillblanks',
+    title: '✏️ Écriture — Mot de passe de la porte',
+    question: 'Complète le mot de passe gravé dans la pierre :',
+    segments: [
+      { text: 'D', isBlank: false },
+      { text: 'R', isBlank: true, answer: 'R' },
+      { text: 'A', isBlank: false },
+      { text: 'G', isBlank: true, answer: 'G' },
+      { text: 'O', isBlank: false },
+      { text: 'N', isBlank: true, answer: 'N' },
+    ],
+  });
 
   // Exercise 16 — Math FR (castle stairs)
-  const stairQ = {
-    easy: { q: 'La tour du château a 100 marches. Tu en montes 40. Combien en reste-t-il ?', a: 60 },
-    medium: { q: 'La tour a 365 marches (une par jour de l\'année !). Tu en montes 100. Combien en reste-t-il ?', a: 265 },
-    hard: { q: 'La tour a 365 marches. Tu montes 3 fois 45 marches avec des pauses. Combien de marches reste-t-il ?', a: 230 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Les marches du château',
-    question: stairQ.q,
-    answer: stairQ.a,
-    correctMsg: `Bravo ! ${stairQ.a} marches restantes !`,
+    question: 'La tour a 365 marches (une par jour de l\'année !). Tu en montes 100. Combien en reste-t-il ?',
+    answer: 265,
+    correctMsg: 'Bravo ! 365 − 100 = 265 marches restantes !',
   });
 
   // ── Scene 4.2 — The English Gate ─────────────────────────
@@ -3097,7 +2923,7 @@ async function runAct4() {
     },
     {
       speaker: '👵 Maminette',
-      text: '"Le parchemin magique dit qu\'il faut répondre en anglais pour ouvrir la prochaine porte... on ne comprend pas l\'anglais nous, mais toi c\'est le chevalier !"',
+      text: '"Le parchemin magique dit qu\'il faut répondre en anglais pour ouvrir la prochaine porte... on ne comprend pas l\'anglais nous, mais je suis sûre que notre chevalier saura nous aider !"',
       bg: 'castle',
       characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
     },
@@ -3108,44 +2934,30 @@ async function runAct4() {
     lang: 'en',
     type: 'mcq',
     title: '📖 Reading — The Castle Door 🇺🇸',
-    question: 'The inscription says: "The brave knight shall open this door." What does it mean in French?',
+    question: 'The inscription says: "The brave knight must open this door." What does it mean in French?',
     choices: [
-      { text: 'Le courageux chevalier ouvrira cette porte.', correct: true },
-      { text: 'Le sorcier fermera cette porte pour toujours.', correct: false },
-      { text: 'Le dragon brisera cette porte cette nuit.', correct: false },
-      ...(GS.difficulty === 'hard' ? [{ text: 'Le chevalier trouvera la clé dans la tour.', correct: false }] : []),
-    ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-    correctMsg: 'Perfect! "The brave knight shall open this door" = Le courageux chevalier ouvrira cette porte !',
+      { text: 'Le courageux chevalier doit ouvrir cette porte.', correct: true  },
+      { text: 'Le sorcier fermera cette porte pour toujours.',   correct: false },
+      { text: 'Le dragon brisera cette porte cette nuit.',       correct: false },
+    ],
+    correctMsg: 'Perfect! "The brave knight must open this door" = Le courageux chevalier doit ouvrir cette porte !',
   });
 
   // Exercise 18 — Writing EN (BRAVE KNIGHT)
-  if (GS.difficulty === 'hard') {
-    await runExercise({
-      lang: 'en',
-      type: 'typing',
-      title: '✏️ Writing — The Password 🇺🇸',
-      question: 'Type the password in English to open the door:',
-      answer: 'BRAVE KNIGHT',
-      alternatives: ['brave knight'],
-      placeholder: 'Type the password...',
-      hint: '💡 Two words: the first means COURAGEUX, the second means CHEVALIER',
-    });
-  } else {
-    await runExercise({
-      lang: 'en',
-      type: 'fillblanks',
-      title: '✏️ Writing — The Password 🇺🇸',
-      question: 'Complete the password to open the door:',
-      segments: [
-        { text: 'B', isBlank: false },
-        { text: 'RA', isBlank: true, answer: 'RA' },
-        { text: 'VE ', isBlank: false },
-        { text: 'KN', isBlank: true, answer: 'KN' },
-        { text: 'I', isBlank: false },
-        { text: 'GHT', isBlank: true, answer: 'GHT' },
-      ],
-    });
-  }
+  await runExercise({
+    lang: 'en',
+    type: 'fillblanks',
+    title: '✏️ Writing — The Password 🇺🇸',
+    question: 'Complete the password to open the door:',
+    segments: [
+      { text: 'B', isBlank: false },
+      { text: 'RA', isBlank: true, answer: 'RA' },
+      { text: 'VE ', isBlank: false },
+      { text: 'KN', isBlank: true, answer: 'KN' },
+      { text: 'I', isBlank: false },
+      { text: 'GHT', isBlank: true, answer: 'GHT' },
+    ],
+  });
 
   // ── Scene 4.3 — BOSS: Sorcier Malfang ───────────────────
   await runNarration([
@@ -3177,19 +2989,13 @@ async function runAct4() {
   Audio8bit.play('bossDead'); // dramatic intro sound
 
   // Boss Challenge 1 — Math FR
-  const bossQ1 = {
-    easy: { q: 'ÉPREUVE 1 : "J\'ai 5 étoiles magiques et j\'en gagne 8. Combien en ai-je ?" (dit Malfang en ricanant)', a: 13 },
-    medium: { q: 'ÉPREUVE 1 : "J\'ai 3 fois 8 étoiles magiques et j\'en perds 7. Combien en reste-t-il ?" (rit Malfang)', a: 17 },
-    hard: { q: 'ÉPREUVE 1 : "J\'ai 4 fois 9 étoiles. Je t\'en donne la moitié. Combien en reste-t-il chez moi ?" (défie Malfang)', a: 18 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '⚡ ÉPREUVE 1 du Sorcier Malfang !',
-    question: bossQ1.q,
-    answer: bossQ1.a,
-    correctMsg: `✅ ${bossQ1.a} ! Malfang grogne de rage !`,
+    question: 'ÉPREUVE 1 : "J\'ai 3 fois 8 étoiles magiques et j\'en perds 7. Combien en reste-t-il ?" (rit Malfang)',
+    answer: 17,
+    correctMsg: '✅ 17 ! Malfang grogne de rage !',
   });
 
   await runNarration([
@@ -3202,28 +3008,13 @@ async function runAct4() {
   ]);
 
   // Boss Challenge 2 — Reading FR (drag-drop)
-  const bossWords2 = {
-    easy: {
-      words: ['brave', 'est', 'chevalier', 'Le'],
-      order: ['Le', 'chevalier', 'est', 'brave'],
-    },
-    medium: {
-      words: ['sauver', 'je', 'vais', 'mon', 'dragon'],
-      order: ['je', 'vais', 'sauver', 'mon', 'dragon'],
-    },
-    hard: {
-      words: ['brisera', 'chevalier', 'les', 'brave', 'Le', 'chaînes'],
-      order: ['Le', 'brave', 'chevalier', 'brisera', 'les', 'chaînes'],
-    },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'dragdrop',
     title: '⚡ ÉPREUVE 2 du Sorcier Malfang !',
     question: '"Remets ces mots dans le bon ordre pour former une phrase !" rugit Malfang.',
-    words: bossWords2.words,
-    correctOrder: bossWords2.order,
+    words: ['sauver', 'je', 'vais', 'mon', 'dragon'],
+    correctOrder: ['je', 'vais', 'sauver', 'mon', 'dragon'],
   });
 
   await runNarration([
@@ -3335,20 +3126,14 @@ async function runAct5() {
 
   await runErrorFindingExercise();
 
-  // Exercise 20 — Math FR (garden vegetables)
-  const gardenQ = {
-    easy: { q: 'Mamiya a planté 5 rangs de carottes et 3 rangs de poireaux. Combien de rangs au total ?', a: 8 },
-    medium: { q: 'Mamiya a 4 rangs de 6 carottes. Raphaël en mange 7. Combien reste-t-il de carottes ?', a: 17 },
-    hard: { q: 'Mamiya a 4 rangs de 8 carottes. Elle partage moitié-moitié entre Erwan et Raphaël. Combien chacun en a-t-il ?', a: 16 },
-  }[GS.difficulty];
-
+  // Exercise 20 — Math FR (apple harvest)
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Le jardin de Mamiya',
-    question: gardenQ.q,
-    answer: gardenQ.a,
-    correctMsg: `Parfait ! ${gardenQ.a} ! Mamiya est impressionnée !`,
+    question: 'Mamiya ramasse 5 paniers de 30 pommes. Raphaël en mange 2. Combien reste-t-il de pommes ?',
+    answer: 148,
+    correctMsg: 'Parfait ! 5 × 30 = 150, moins 2 = 148 pommes ! Mamiya est impressionnée !',
   });
 
   // ── Scene 5.2 — Bike ride with Raphaël ──────────────────
@@ -3364,19 +3149,13 @@ async function runAct5() {
   await runBikeGame();
 
   // Exercise 21 — Math FR (km calculation)
-  const bikeQ = {
-    easy: { q: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus que toi. Combien a-t-il roulé ?', a: 6 },
-    medium: { q: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus. Ensemble, combien avez-vous roulé ?', a: 10 },
-    hard: { q: 'Tu roules à 12 km/h pendant 30 minutes. Raphaël roule à 10 km/h pendant 1 heure. Qui a roulé le plus loin ? Entre le nombre de km du gagnant.', a: 10 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — Balade à vélo',
-    question: bikeQ.q,
-    answer: bikeQ.a,
-    correctMsg: `Super ! ${bikeQ.a} km ! Vous êtes de vrais champions !`,
+    question: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus. Ensemble, combien avez-vous roulé ?',
+    answer: 10,
+    correctMsg: 'Super ! 4 + (4+2) = 10 km ! Vous êtes de vrais champions !',
   });
 
   // ── Scene 5.3 — Dragon learns to fly with Papou ──────────
@@ -3422,32 +3201,30 @@ async function runAct5() {
     {
       question: 'La recette dit : "Mélange 200g de farine, 2 œufs et du lait". Quel ingrédient n\'est PAS dans la recette ?',
       choices: [
-        { text: '🌾 Farine',  correct: false },
-        { text: '🥚 Œufs',   correct: false },
-        { text: '🍫 Chocolat', correct: true },
-        ...(GS.difficulty === 'hard' ? [{ text: '🥛 Lait', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+        { text: '🌾 Farine',   correct: false },
+        { text: '🥚 Œufs',    correct: false },
+        { text: '🍫 Chocolat', correct: true  },
+      ],
       correctMsg: 'Le chocolat n\'est pas dans la recette de galette bretonne !',
     },
     {
-      question: 'La recette dit : "Cuis à la poêle pendant 2 minutes de chaque côté." Combien de minutes au total par galette ?',
+      question: 'La recette dit : "Cuis à la poêle pendant 2 minutes et 40 secondes de chaque côté." Combien de temps au total pour une galette ?',
       choices: [
-        { text: '2 minutes',  correct: false },
-        { text: '4 minutes',  correct: true  },
-        { text: '6 minutes',  correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '8 minutes', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: '2 + 2 = 4 minutes par galette ! Tu sais cuisiner !',
+        { text: '4 minutes',             correct: false },
+        { text: '5 minutes 20 secondes', correct: true  },
+        { text: '6 minutes 20 secondes', correct: false },
+      ],
+      correctMsg: '2 min 40 sec × 2 = 5 minutes 20 secondes ! Tu sais cuisiner !',
     },
     {
-      question: `Mamiya fait 8 galettes. Le dragon ${GS.dragonName} en mange 3. Combien reste-t-il de galettes ?`,
+      question: `Mamiya fait 3 fournées de 4 galettes. Le dragon ${GS.dragonName} en mange 5. Combien reste-t-il de galettes ?`,
       choices: [
-        { text: '3 galettes', correct: false },
-        { text: '5 galettes', correct: true },
-        { text: '8 galettes', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '11 galettes', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: '8 − 3 = 5 galettes ! Et elles sont délicieuses !',
+        { text: '5 galettes',  correct: false },
+        { text: '7 galettes',  correct: true  },
+        { text: '9 galettes',  correct: false },
+        { text: '12 galettes', correct: false },
+      ],
+      correctMsg: '3 × 4 = 12 galettes, moins 5 = 7 galettes ! Excellent !',
     },
   ], '📖 Lecture — La recette de Mamiya', 'fr');
 
@@ -3463,29 +3240,20 @@ async function runAct5() {
 
   await runExercise({
     lang: 'en',
-    type: GS.difficulty === 'hard' ? 'journal' : 'fillblanks',
+    type: 'fillblanks',
     title: '✏️ Writing — Postcard to Brooklyn 🇺🇸',
-    question: GS.difficulty === 'hard'
-      ? `Write a postcard in English to Gabriel, Adi and Claire! Tell them about your adventure!`
-      : 'Complete the postcard in English for your friends in Brooklyn:',
-    ...(GS.difficulty === 'hard'
-      ? {
-          placeholder: 'Dear Gabriel, Adi and Claire,\nI am in Brittany with my dragon ...',
-          journalLabel: '🇺🇸 Postcard in English',
-        }
-      : {
-          segments: [
-            { text: 'Dear Gabriel, I am in ', isBlank: false },
-            { text: 'Brittany', isBlank: true, answer: 'Brittany' },
-            { text: '. I saved a ', isBlank: false },
-            { text: 'dragon', isBlank: true, answer: 'dragon' },
-            { text: '! It is ', isBlank: false },
-            { text: 'amazing', isBlank: true, answer: 'amazing' },
-            { text: '! Your friend, ', isBlank: false },
-            { text: GS.playerName, isBlank: true, answer: GS.playerName },
-          ],
-          journalLabel: '🇺🇸 Carte postale en anglais',
-        }),
+    question: 'Complete the postcard in English for your friends in Brooklyn:',
+    segments: [
+      { text: 'Dear Gabriel, I am in ', isBlank: false },
+      { text: 'Brittany', isBlank: true, answer: 'Brittany' },
+      { text: '. I saved a ', isBlank: false },
+      { text: 'dragon', isBlank: true, answer: 'dragon' },
+      { text: '! It is ', isBlank: false },
+      { text: 'amazing', isBlank: true, answer: 'amazing' },
+      { text: '! Your friend, ', isBlank: false },
+      { text: GS.playerName, isBlank: true, answer: GS.playerName },
+    ],
+    journalLabel: '🇺🇸 Carte postale en anglais',
   });
 
   // ── Scene 5.4 — EPILOGUE ─────────────────────────────────
@@ -3670,15 +3438,17 @@ async function runEpilogue() {
     },
     {
       speaker: '🌟 La famille réunie',
-      text: `Papi Jean-Marie et Maminette arrivent depuis Orléans par la route ! Tout le monde est là : Mamiya, Papou, Raphaël, Papi Jean-Marie, Maminette... et ${GS.dragonName} !`,
+      text: `Papi Jean-Marie et Maminette arrivent depuis Orléans par la route ! Et surprise : maman et papa ont pris l'avion depuis New York ! Tout le monde est là : maman, papa, Mamiya, Papou, Raphaël, Papi Jean-Marie, Maminette... et ${GS.dragonName} !`,
       bg: 'brittany',
       characters: [
-        { name:'papi',      x:0.05, y:0.7  },
-        { name:'maminette', x:0.2,  y:0.7  },
-        { name:'mamiya',    x:0.35, y:0.7  },
-        { name:'papou',     x:0.5,  y:0.7  },
-        { name:'raphael',   x:0.65, y:0.7  },
-        { name:'erwan',     x:0.8,  y:0.7  },
+        { name:'maman',     x:0.02, y:0.7  },
+        { name:'papa',      x:0.13, y:0.7  },
+        { name:'papi',      x:0.24, y:0.7  },
+        { name:'maminette', x:0.35, y:0.7  },
+        { name:'mamiya',    x:0.46, y:0.7  },
+        { name:'papou',     x:0.57, y:0.7  },
+        { name:'raphael',   x:0.68, y:0.7  },
+        { name:'erwan',     x:0.82, y:0.7  },
       ],
     },
   ]);
@@ -3756,8 +3526,6 @@ function restartGame() {
   GS.dragonName  = '';
   document.getElementById('input-dragon').value = '';
   document.getElementById('input-player').value = GS.playerName || 'Erwan';
-  document.getElementById('pin-section').style.display = '';
-  document.getElementById('settings-panel').classList.remove('show');
   showScreen('screen-start');
   updateHUD();
 }
@@ -3772,10 +3540,6 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('input-dragon').addEventListener('keydown', e => {
     if (e.key === 'Enter') startGame();
   });
-  document.getElementById('pin-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkPin();
-  });
-
   // Draw animated background on main canvas
   let bgTick = 0;
   function animateBg() {

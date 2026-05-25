@@ -20,7 +20,6 @@
     <div id="hud-hearts">❤️❤️❤️</div>
     <div id="hud-stars">⭐ 0</div>
     <div id="hud-act">Prêt à l'aventure !</div>
-    <div id="hud-level">⚔️⚔️</div>
     <button id="btn-journal" onclick="showJournal()" title="Journal de bord">📔</button>
     <button id="btn-home" onclick="confirmRestart()" title="Recommencer depuis le début">🏠</button>
   </div>
@@ -71,8 +70,6 @@
           </div>
           <button class="btn btn-primary" onclick="startGame()">⚔️ COMMENCER L'AVENTURE !</button>
         </div>
-
-        <button class="btn-parents" onclick="openParentMenu()">⚙️ Parents</button>
       </div>
 
       <!-- ── NARRATION SCREEN ──────────────────────────── -->
@@ -202,34 +199,6 @@
 <!-- Transition overlay -->
 <div id="transition-overlay">
   <div class="transition-icon" id="transition-icon">✈️</div>
-</div>
-
-<!-- PIN Modal -->
-<div id="pin-modal">
-  <div class="pin-box">
-    <div class="pin-title">⚙️ Menu Parents</div>
-    <div id="pin-section">
-      <label style="font-size:13px;color:#aaa;display:block;margin-bottom:6px;">Code PIN :</label>
-      <input class="pixel-input" id="pin-input" type="password" maxlength="4" placeholder="••••">
-      <div id="pin-error" style="color:#e74c3c;font-size:12px;margin-top:4px;min-height:16px;"></div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="btn btn-primary" style="flex:1" onclick="checkPin()">Valider</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('pin-modal').classList.remove('show')">Annuler</button>
-      </div>
-    </div>
-    <div class="settings-panel" id="settings-panel">
-      <div style="font-size:14px;color:#ffd700;margin-bottom:8px;">Niveau de difficulté :</div>
-      <button class="difficulty-btn" data-diff="easy"   onclick="setDifficulty('easy')">⚔️ Simple — Pour débuter</button>
-      <button class="difficulty-btn selected" data-diff="medium" onclick="setDifficulty('medium')">⚔️⚔️ Moyen — Recommandé ✓</button>
-      <button class="difficulty-btn" data-diff="hard"   onclick="setDifficulty('hard')">⚔️⚔️⚔️ Complexe — Défi !</button>
-      <div style="font-size:11px;color:#666;margin-top:8px;line-height:1.5;">
-        Le niveau affecte la longueur des textes, la complexité des maths et le type d'exercices d'écriture.
-      </div>
-      <button class="btn btn-primary" onclick="document.getElementById('pin-modal').classList.remove('show');document.getElementById('pin-section').style.display='';document.getElementById('settings-panel').classList.remove('show');" style="margin-top:8px;">
-        ✓ Enregistrer et fermer
-      </button>
-    </div>
-  </div>
 </div>
 
 <script>

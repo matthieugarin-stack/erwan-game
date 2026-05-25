@@ -48,8 +48,6 @@ function restartGame() {
   GS.dragonName  = '';
   document.getElementById('input-dragon').value = '';
   document.getElementById('input-player').value = GS.playerName || 'Erwan';
-  document.getElementById('pin-section').style.display = '';
-  document.getElementById('settings-panel').classList.remove('show');
   showScreen('screen-start');
   updateHUD();
 }
@@ -64,10 +62,6 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('input-dragon').addEventListener('keydown', e => {
     if (e.key === 'Enter') startGame();
   });
-  document.getElementById('pin-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkPin();
-  });
-
   // Draw animated background on main canvas
   let bgTick = 0;
   function animateBg() {

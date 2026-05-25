@@ -16,7 +16,7 @@ async function runAct3() {
     },
     {
       speaker: '🧓 Papi Jean-Marie',
-      text: `Mon grand chevalier ! Bienvenue en France ! Maminette et moi on t'a apporté des croissants ! Et la 2CV est en pleine forme !`,
+      text: `Mon grand chevalier ! Bienvenue en France ! Maminette et moi on t'a apporté des croissants frais — ça va te changer des donuts américains !`,
       bg: 'paris',
       characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
     },
@@ -36,8 +36,7 @@ async function runAct3() {
         { text: '🛫 DÉPARTS',  correct: false },
         { text: '🧳 BAGAGES',  correct: true  },
         { text: '🚌 NAVETTES', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🏨 HÔTELS', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'BAGAGES ! C\'est là que tu récupères ta valise !',
     },
     {
@@ -46,8 +45,7 @@ async function runAct3() {
         { text: '🧳 BAGAGES',  correct: false },
         { text: '🚪 SORTIE',   correct: true  },
         { text: '✈️ ARRIVÉES', correct: false },
-        ...(GS.difficulty === 'hard' ? [{ text: '🛒 BOUTIQUES', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
+      ],
       correctMsg: 'SORTIE ! Papi Jean-Marie est dehors, il t\'attend !',
     },
   ], '📖 Lecture — Panneaux de CDG 🇫🇷', 'fr');
@@ -56,7 +54,7 @@ async function runAct3() {
   await runNarration([
     {
       speaker: '📮 Carte postale',
-      text: 'Pendant que Papi charge les bagages dans la 2CV, tu écris une carte postale à Gabriel !',
+      text: 'Pendant que Papi charge les bagages dans la voiture, tu écris une carte postale à Gabriel !',
       bg: 'paris',
       characters: [{ name:'erwan', x:0.5, y:0.65 }],
     },
@@ -67,33 +65,23 @@ async function runAct3() {
     type: 'fillblanks',
     title: '✏️ Écriture — Carte postale à Gabriel',
     question: 'Complète la carte postale pour Gabriel :',
-    segments: GS.difficulty === 'easy'
-      ? [
-          { text: 'Je suis arri', isBlank: false },
-          { text: 'vé', isBlank: true, answer: 'vé' },
-          { text: ' à Par', isBlank: false },
-          { text: 'is', isBlank: true, answer: 'is' },
-          { text: '. Il y a la Tour Eif', isBlank: false },
-          { text: 'fel', isBlank: true, answer: 'fel' },
-          { text: '!', isBlank: false },
-        ]
-      : [
-          { text: 'Je suis ', isBlank: false },
-          { text: 'arrivé', isBlank: true, answer: 'arrivé' },
-          { text: ' à ', isBlank: false },
-          { text: 'Paris', isBlank: true, answer: 'Paris' },
-          { text: '. Il y a la Tour ', isBlank: false },
-          { text: 'Eiffel', isBlank: true, answer: 'Eiffel' },
-          { text: ' !', isBlank: false },
-        ],
+    segments: [
+      { text: 'Je suis ', isBlank: false },
+      { text: 'arrivé', isBlank: true, answer: 'arrivé' },
+      { text: ' à ', isBlank: false },
+      { text: 'Paris', isBlank: true, answer: 'Paris' },
+      { text: '. Il y a la Tour ', isBlank: false },
+      { text: 'Eiffel', isBlank: true, answer: 'Eiffel' },
+      { text: ' !', isBlank: false },
+    ],
     journalLabel: '📮 Carte postale de Paris',
   });
 
   // ── Scene 3.2 — Route vers Orléans ──────────────────────
   await runNarration([
     {
-      speaker: '🚗 Dans la 2CV !',
-      text: 'La vieille 2CV de Papi Jean-Marie roule vers Orléans. Le moteur fait un bruit rigolo : "VROUUUUUN VROUUUUN" !',
+      speaker: '🚗 Sur la route !',
+      text: 'La nouvelle voiture électrique de Papi Jean-Marie roule silencieusement vers Orléans. On n\'entend que le vent et les oiseaux — c\'est magique !',
       bg: 'road',
       characters: [{ name:'papi', x:0.25, y:0.65 }, { name:'maminette', x:0.45, y:0.65 }, { name:'erwan', x:0.7, y:0.65 }],
     },
@@ -112,44 +100,47 @@ async function runAct3() {
   ]);
 
   // Exercise 12 — Math FR (distance)
-  const distQ = {
-    easy: { q: 'Orléans est à 130 km de Paris. On a déjà fait 65 km. Combien de km reste-t-il ?', a: 65 },
-    medium: { q: 'Orléans est à 130 km. On a déjà fait 65 km. Combien de km reste-t-il ?', a: 65 },
-    hard: { q: 'On roule à 110 km/h. Orléans est à 130 km. Papi s\'arrête après 65 km. On reprend à 110 km/h. Combien de minutes pour le reste du trajet ? (arrondi à l\'unité)', a: 35 },
-  }[GS.difficulty];
-
   await runExercise({
     lang: 'fr',
     type: 'numpad',
     title: '🔢 Calcul — La route pour Orléans',
-    question: distQ.q,
-    answer: distQ.a,
-    correctMsg: `Bravo ! La réponse est ${distQ.a} !`,
+    question: 'Orléans est à 130 km de Paris. On a déjà fait 65 km. Combien de km reste-t-il ?',
+    answer: 65,
+    correctMsg: 'Bravo ! Il reste 65 km !',
   });
 
-  // Exercise 13 — Reading FR (dragon book)
+  // Exercise 13 — Dragon book (narration + typing + English MCQ)
+  await runNarration([
+    {
+      speaker: '👵 Maminette (lit un livre)',
+      text: '"Tiens, j\'ai trouvé un livre sur les dragons de la Loire ! Il dit : les dragons mangent des étoiles magiques... et pour libérer un dragon prisonnier, il faut absolument connaître son nom !" Maminette sourit : "Tu vois pourquoi on a donné un nom à ton dragon ?"',
+      bg: 'road',
+      characters: [{ name:'maminette', x:0.35, y:0.65 }, { name:'erwan', x:0.65, y:0.65 }],
+    },
+  ]);
+
+  await runExercise({
+    lang: 'fr',
+    type: 'typing',
+    title: '📖 Lecture — Le livre des dragons',
+    question: 'Maminette vient de lire que les dragons de la Loire mangent des... Écris ce qu\'ils mangent :',
+    answer: 'étoiles magiques',
+    alternatives: ['etoiles magiques', 'étoiles magique', 'etoile magique', 'etoiles magique'],
+    placeholder: 'Tape la réponse...',
+    hint: '💡 Maminette vient de lire la réponse à voix haute !',
+  });
+
   await runMCQSequence([
     {
-      question: 'Maminette lit : "Les dragons de la Loire vivent dans les tours rondes et mangent des...". Quel mot manque ?',
+      question: 'The book says: "To free a dragon, a brave knight must know its..." What is missing?',
       choices: [
-        { text: '🍕 pizzas',    correct: false },
-        { text: '🧀 fromages',  correct: false },
-        { text: '🌟 étoiles magiques', correct: true },
-        ...(GS.difficulty === 'hard' ? [{ text: '🐟 poissons', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: 'Des étoiles magiques ! Comme tes étoiles Knicks !',
+        { text: '😴 Sleep schedule', correct: false },
+        { text: '🔤 Name',           correct: true  },
+        { text: '📚 Favourite book', correct: false },
+      ],
+      correctMsg: `Yes! You must know its name! That's why your dragon is called "${GS.dragonName}"!`,
     },
-    {
-      question: 'Le livre dit : "Pour libérer un dragon, il faut être brave et..." ?',
-      choices: [
-        { text: '😴 dormir beaucoup', correct: false },
-        { text: '📚 lire beaucoup',   correct: false },
-        { text: '💪 connaître son nom', correct: true },
-        ...(GS.difficulty === 'hard' ? [{ text: '🏃 courir vite', correct: false }] : []),
-      ].slice(0, GS.difficulty === 'easy' ? 2 : GS.difficulty === 'medium' ? 3 : 4),
-      correctMsg: `Oui ! Connaître son nom ! C'est pour ça qu'on a appelé ton dragon "${GS.dragonName}" !`,
-    },
-  ], '📖 Lecture — Le livre sur les dragons', 'fr');
+  ], '📖 Reading — The Dragon Book 🇺🇸', 'en');
 
   // Mini-game: Map of France — click cities
   await runMapGame();
@@ -172,11 +163,12 @@ function runMapGame() {
     const instrEl = document.getElementById('mg-instr');
 
     titleEl.textContent = '🗺️ Carte de France !';
-    instrEl.textContent = 'Clique sur les villes dans l\'ordre : Paris → Orléans';
+    instrEl.textContent = 'Clique sur les villes dans l\'ordre : Paris → Orléans → Lorient';
 
     const cities = [
-      { name:'Paris',   px:0.48, py:0.28, done:false, step:0 },
-      { name:'Orléans', px:0.47, py:0.38, done:false, step:1 },
+      { name:'Paris',   px:0.48, py:0.28, done:false },
+      { name:'Orléans', px:0.47, py:0.38, done:false },
+      { name:'Lorient', px:0.22, py:0.62, done:false },
     ];
     let step = 0;
 
@@ -193,17 +185,23 @@ function runMapGame() {
       ctx.ellipse(W*0.48, H*0.5, W*0.28, H*0.38, 0, 0, Math.PI*2);
       ctx.fill();
 
-      // Route line if Paris done
+      // Route lines for completed segments
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6,4]);
       if (step >= 1) {
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([6,4]);
         ctx.beginPath();
         ctx.moveTo(cities[0].px*W, cities[0].py*H);
         ctx.lineTo(cities[1].px*W, cities[1].py*H);
         ctx.stroke();
-        ctx.setLineDash([]);
       }
+      if (step >= 2) {
+        ctx.beginPath();
+        ctx.moveTo(cities[1].px*W, cities[1].py*H);
+        ctx.lineTo(cities[2].px*W, cities[2].py*H);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
 
       // Cities
       cities.forEach((city, i) => {
@@ -218,6 +216,7 @@ function runMapGame() {
         ctx.textAlign = 'left';
         ctx.fillText(city.name, x + 14, y + 5);
         if (city.done) {
+          ctx.fillStyle = '#2ecc40';
           ctx.fillText('✓', x - 5, y + 5);
         }
       });

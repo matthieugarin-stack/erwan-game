@@ -6,7 +6,6 @@
 const GS = {
   playerName: 'Erwan',
   dragonName: '',
-  difficulty: 'medium',    // 'easy' | 'medium' | 'hard'
   stars: 0,
   hearts: 3,
   actIndex: 0,             // 0-4 = acts 1-5
@@ -26,7 +25,6 @@ function initDOM() {
   DOM.hudHearts  = document.getElementById('hud-hearts');
   DOM.hudStars   = document.getElementById('hud-stars');
   DOM.hudAct     = document.getElementById('hud-act');
-  DOM.hudLevel   = document.getElementById('hud-level');
   DOM.mainCanvas = document.getElementById('main-canvas');
   DOM.ctx        = DOM.mainCanvas.getContext('2d');
   DOM.dragonCanvas = document.getElementById('dragon-canvas');
@@ -40,7 +38,6 @@ function initDOM() {
   DOM.celebration  = document.getElementById('celebration');
   DOM.transOverlay = document.getElementById('transition-overlay');
   DOM.transIcon    = document.getElementById('transition-icon');
-  DOM.pinModal     = document.getElementById('pin-modal');
 }
 
 // ── HUD Update ───────────────────────────────────────────────
@@ -49,8 +46,6 @@ function updateHUD() {
   DOM.hudStars.textContent  = `⭐ ${GS.stars}`;
   const actNames = ['Act 1: Brooklyn','Act 2: Avion','Act 3: Paris','Act 4: Loire','Act 5: Bretagne'];
   DOM.hudAct.textContent = actNames[GS.actIndex] || '';
-  const levels = { easy:'⚔️', medium:'⚔️⚔️', hard:'⚔️⚔️⚔️' };
-  DOM.hudLevel.textContent = levels[GS.difficulty];
   // Dragon panel
   DOM.dragonName.textContent = GS.dragonName ? `🐉 ${GS.dragonName}` : '🐉 ???';
   const statuses = [
@@ -237,35 +232,6 @@ function closeJournal() {
   _journalPrev = null;
 }
 
-// ── PIN & Parent Settings ─────────────────────────────────────
-function openParentMenu() {
-  DOM.pinModal.classList.add('show');
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-error').textContent = '';
-  document.getElementById('settings-panel').classList.remove('show');
-}
-function checkPin() {
-  const val = document.getElementById('pin-input').value;
-  if (val === '1234') {
-    document.getElementById('pin-section').style.display = 'none';
-    document.getElementById('settings-panel').classList.add('show');
-    updateDifficultyButtons();
-  } else {
-    document.getElementById('pin-error').textContent = 'Code incorrect !';
-    Audio8bit.play('wrong');
-  }
-}
-function setDifficulty(d) {
-  GS.difficulty = d;
-  updateDifficultyButtons();
-  Audio8bit.play('click');
-}
-function updateDifficultyButtons() {
-  document.querySelectorAll('.difficulty-btn').forEach(b => {
-    b.classList.toggle('selected', b.dataset.diff === GS.difficulty);
-  });
-}
-
 // ── Exercise Engine ────────────────────────────────────────────
 //
 // exerciseDef = {
@@ -305,9 +271,8 @@ function runExercise(def) {
 
 function renderExercise(def) {
   const panel = document.getElementById('exercise-panel');
-  const levels = { easy:'⚔️ Simple', medium:'⚔️⚔️ Moyen', hard:'⚔️⚔️⚔️ Complexe' };
   panel.innerHTML = `
-    <div class="exercise-title">${def.title} <span style="float:right;font-size:11px">${levels[GS.difficulty]}</span></div>
+    <div class="exercise-title">${def.title}</div>
     <div class="exercise-question">${def.question}</div>
     <div id="ex-content"></div>
     <div class="exercise-feedback" id="ex-feedback"></div>

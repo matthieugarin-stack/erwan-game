@@ -211,6 +211,31 @@ const Sprites = (() => {
     [K,_,_,  K,  _,  K,  _,_,K],
   ];
 
+  // ── MAMAN (mum from NYC) ─────────────────────────────────
+  const MAMAN = [
+    [_,_,P,  P,  P,_,_],
+    [_,P,SK, SK, SK,P,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,GR,GR, GR,_,_],
+    [_,LB,LB,LB,LB,LB,_],
+    [_,LB,LB,LB,LB,LB,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,LB,_,  LB,_,_],
+  ];
+  // ── PAPA (dad from NYC) ──────────────────────────────────
+  const PAPA = [
+    [_,_,K,  K,  K,_,_],
+    [_,K,SK, SK, SK,K,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,SK, SK, SK,_,_],
+    [_,_,GR,GR, GR,_,_],
+    [_,B, B,  B,  B, B,_],
+    [_,B, B,  B,  B, B,_],
+    [_,_,GR,_,  GR,_,_],
+    [_,_,K,  _,  K, _,_],
+  ];
+
   // ── Backgrounds ──────────────────────────────────────────
   function drawBackground(ctx, W, H, type) {
     ctx.clearRect(0, 0, W, H);
@@ -452,6 +477,7 @@ const Sprites = (() => {
       erwan: ERWAN, papi: PAPI, maminette: MAMINETTE,
       mamiya: MAMIYA, papou: PAPOU, raphael: RAPHAEL,
       gabriel: GABRIEL, adi: ADI, claire: CLAIRE, malfang: MALFANG,
+      maman: MAMAN, papa: PAPA,
     };
     const s = spriteMap[name];
     if (!s) return;
