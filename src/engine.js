@@ -598,10 +598,12 @@ function renderDragDrop(def, content, actions) {
 
     chip.addEventListener('mousedown', e => {
       e.preventDefault();
+      Audio8bit.play('pop');
       startDrag(e.clientX, e.clientY);
     });
     chip.addEventListener('touchstart', e => {
       const t = e.touches[0];
+      Audio8bit.play('pop');
       startDrag(t.clientX, t.clientY);
     }, { passive: true });
 
@@ -738,6 +740,7 @@ function runNarration(lines) {
       const txt = line.text;
       const iv = setInterval(() => {
         textEl.textContent = txt.slice(0, ++ci);
+        if (ci % 4 === 0 && ci < txt.length) Audio8bit.play('typewriterTick');
         if (ci >= txt.length) clearInterval(iv);
       }, 28);
 

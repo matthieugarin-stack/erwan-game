@@ -809,6 +809,24 @@ const Audio8bit = (() => {
       beep({ freq: 660, duration: 0.08, vol: 0.1 });
       beep({ freq: 880, duration: 0.08, delay: 0.1, vol: 0.1 });
     },
+    pop() {
+      beep({ freq: 700 + Math.random() * 200, type: 'square', duration: 0.04, vol: 0.12 });
+    },
+    typewriterTick() {
+      beep({ freq: 750 + Math.random() * 150, type: 'square', duration: 0.018, vol: 0.035 });
+    },
+    magic() {
+      [1047, 1319, 1568, 2093].forEach((f, i) =>
+        beep({ freq: f, type: 'sine', duration: 0.1, delay: i * 0.07, vol: 0.15 }));
+    },
+    drumRoll() {
+      for (let i = 0; i < 10; i++)
+        beep({ freq: 120, type: 'sawtooth', duration: 0.06, delay: i * 0.06, vol: 0.14 - i * 0.01 });
+    },
+    cheer() {
+      [523, 659, 784, 1047, 1319, 1568].forEach((f, i) =>
+        beep({ freq: f, duration: 0.12, delay: i * 0.08, vol: 0.2 }));
+    },
   };
 
   return { play: (name) => { try { sounds[name]?.(); } catch(e) {} } };
@@ -1981,10 +1999,12 @@ function renderDragDrop(def, content, actions) {
 
     chip.addEventListener('mousedown', e => {
       e.preventDefault();
+      Audio8bit.play('pop');
       startDrag(e.clientX, e.clientY);
     });
     chip.addEventListener('touchstart', e => {
       const t = e.touches[0];
+      Audio8bit.play('pop');
       startDrag(t.clientX, t.clientY);
     }, { passive: true });
 
@@ -2121,6 +2141,7 @@ function runNarration(lines) {
       const txt = line.text;
       const iv = setInterval(() => {
         textEl.textContent = txt.slice(0, ++ci);
+        if (ci % 4 === 0 && ci < txt.length) Audio8bit.play('typewriterTick');
         if (ci >= txt.length) clearInterval(iv);
       }, 28);
 
@@ -2420,7 +2441,7 @@ async function runAct2() {
   // Mini-game: Catch cloud syllables to spell the dragon's name
   await runCloudGame();
 
-  Audio8bit.play('levelUp');
+  Audio8bit.play('cheer');
   await runAct3();
 }
 
@@ -2711,7 +2732,7 @@ async function runAct3() {
   // Mini-game: Map of France — click cities
   await runMapGame();
 
-  Audio8bit.play('levelUp');
+  Audio8bit.play('cheer');
   evolveDragon(); // stage 1 → 2
 
   await runAct4();
@@ -2986,7 +3007,8 @@ async function runAct4() {
       characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }],
     },
   ]);
-  Audio8bit.play('bossDead'); // dramatic intro sound
+  Audio8bit.play('drumRoll');
+  setTimeout(() => Audio8bit.play('bossDead'), 700);
 
   // Boss Challenge 1 — Math FR
   await runExercise({
@@ -3070,7 +3092,8 @@ async function runAct4() {
   ]);
 
   celebrate(5);
-  Audio8bit.play('bossDead');
+  Audio8bit.play('magic');
+  setTimeout(() => Audio8bit.play('bossDead'), 400);
   evolveDragon(); // stage 2 → 3
 
   await runAct5();
@@ -3136,29 +3159,7 @@ async function runAct5() {
     correctMsg: 'Parfait ! 5 × 30 = 150, moins 2 = 148 pommes ! Mamiya est impressionnée !',
   });
 
-  // ── Scene 5.2 — Bike ride with Raphaël ──────────────────
-  await runNarration([
-    {
-      speaker: '🚲 Balade en vélo',
-      text: 'Papou sort les vélos du garage. "Allez les cousins, une grande balade en Bretagne ! Le dragon vole au-dessus de nous !" Les routes bretonnes sont magnifiques !',
-      bg: 'brittany',
-      characters: [{ name:'erwan', x:0.35, y:0.65 }, { name:'raphael', x:0.6, y:0.65 }, { name:'papou', x:0.15, y:0.65 }],
-    },
-  ]);
-
-  await runBikeGame();
-
-  // Exercise 21 — Math FR (km calculation)
-  await runExercise({
-    lang: 'fr',
-    type: 'numpad',
-    title: '🔢 Calcul — Balade à vélo',
-    question: 'Tu as roulé 4 km. Raphaël a roulé 2 km de plus. Ensemble, combien avez-vous roulé ?',
-    answer: 10,
-    correctMsg: 'Super ! 4 + (4+2) = 10 km ! Vous êtes de vrais champions !',
-  });
-
-  // ── Scene 5.3 — Dragon learns to fly with Papou ──────────
+  // ── Scene 5.2 — Dragon learns to fly with Papou ──────────
   await runNarration([
     {
       speaker: '🔧 Papou le bricoleur',
@@ -3174,7 +3175,8 @@ async function runAct5() {
     },
   ]);
   evolveDragon(); // stage 3 → 4 (majestic!)
-  Audio8bit.play('dragonGrow');
+  Audio8bit.play('magic');
+  setTimeout(() => Audio8bit.play('dragonGrow'), 300);
 
   // Exercise 22 — Journal FR (longest writing exercise)
   await runExercise({
@@ -3240,19 +3242,11 @@ async function runAct5() {
 
   await runExercise({
     lang: 'en',
-    type: 'fillblanks',
+    type: 'journal',
     title: '✏️ Writing — Postcard to Brooklyn 🇺🇸',
-    question: 'Complete the postcard in English for your friends in Brooklyn:',
-    segments: [
-      { text: 'Dear Gabriel, I am in ', isBlank: false },
-      { text: 'Brittany', isBlank: true, answer: 'Brittany' },
-      { text: '. I saved a ', isBlank: false },
-      { text: 'dragon', isBlank: true, answer: 'dragon' },
-      { text: '! It is ', isBlank: false },
-      { text: 'amazing', isBlank: true, answer: 'amazing' },
-      { text: '! Your friend, ', isBlank: false },
-      { text: GS.playerName, isBlank: true, answer: GS.playerName },
-    ],
+    question: 'Write a postcard in English to Gabriel, Adi and Claire! Tell them about your adventure in France!',
+    hint: `💡 Start with "Dear Gabriel, Adi and Claire," — tell them about your dragon ${GS.dragonName}, the castles, Brittany...`,
+    placeholder: `Dear Gabriel, Adi and Claire,\nI am in Brittany with my dragon ${GS.dragonName}...`,
     journalLabel: '🇺🇸 Carte postale en anglais',
   });
 
@@ -3263,28 +3257,94 @@ async function runAct5() {
 // ── Exercise: Find errors in banner ───────────────────────────
 function runErrorFindingExercise() {
   return new Promise(resolve => {
-    const errors = [
-      { text: 'Bienvenus', correct: 'Bienvenue', found: false },
-      { text: 'chevalier !', correct: 'chevalier !', found: true }, // not an error
-      { text: 'Félicitation', correct: 'Félicitations', found: false },
-      { text: 'sauveur du drageon', correct: 'sauveur du dragon', found: false },
+    // tokens: { word, isError, correction }
+    const tokens = [
+      { word: 'Bienvenus',      isError: true,  correction: 'Bienvenue' },
+      { word: ` ${GS.playerName},`, isError: false },
+      { word: ' chevalier !',   isError: false },
+      { word: ' Félicitation,', isError: true,  correction: 'Félicitations,' },
+      { word: ' sauveur du',    isError: false },
+      { word: ' drageon',       isError: true,  correction: 'dragon' },
+      { word: ' !',             isError: false },
     ];
-    const banner = `"Bienvenus ${GS.playerName}, chevalier ! Félicitation, sauveur du drageon !"`;
-    let found = 0;
-    const realErrors = errors.filter(e => !e.found);
+    const totalErrors = tokens.filter(t => t.isError).length;
+    let foundErrors = 0;
+    let wrongAttempts = 0;
 
-    renderExercise({
-      lang: 'fr',
-      type: 'mcq',
-      title: '📖 Lecture — Trouve les fautes !',
-      question: `Raphaël a écrit : ${banner}\nIl y a ${realErrors.length} fautes ! Trouve-les en cliquant dessus :`,
-      choices: errors.map(e => ({
-        text: e.text,
-        correct: !e.found,
-      })),
-      _resolve: resolve,
+    const panel = document.getElementById('exercise-panel');
+    panel.innerHTML = `
+      <div class="exercise-title">📖 Lecture — Trouve les fautes !</div>
+      <div class="exercise-question">Raphaël a fait une banderole avec <strong style="color:#e74c3c">${totalErrors} fautes</strong> ! Appuie directement sur les mots incorrects :</div>
+      <div id="banner-display" style="background:#0d1a2e;border:3px solid #ffd700;border-radius:4px;
+        padding:16px 12px;font-size:17px;line-height:2.4;text-align:center;word-break:break-word;"></div>
+      <div style="font-size:14px;color:#aaa;text-align:center;">
+        ✅ <span id="errors-found">0</span> / ${totalErrors} fautes trouvées
+      </div>
+      <div class="exercise-feedback" id="ex-feedback"></div>
+    `;
+
+    const bannerDiv = document.getElementById('banner-display');
+    const errorChips = [];
+
+    tokens.forEach(token => {
+      const el = document.createElement('span');
+      el.textContent = token.word;
+
+      if (token.isError) {
+        el.style.cssText = `cursor:pointer;border:2px dashed #e74c3c;border-radius:4px;
+          padding:2px 5px;color:#ffaaaa;transition:all 0.2s;display:inline-block;`;
+        errorChips.push(el);
+
+        const handleClick = () => {
+          if (el.dataset.found) return;
+          el.dataset.found = '1';
+          el.style.cssText = `cursor:default;border:2px solid #2ecc40;border-radius:4px;
+            padding:2px 5px;background:#1a7a28;color:#2ecc40;display:inline-block;`;
+          el.title = `✓ ${token.correction.trim()}`;
+          foundErrors++;
+          Audio8bit.play('star');
+          document.getElementById('errors-found').textContent = foundErrors;
+          const fb = document.getElementById('ex-feedback');
+          if (fb) { fb.textContent = `✅ "${token.word.trim()}" s'écrit "${token.correction.trim()}" !`; fb.className = 'exercise-feedback feedback-correct'; }
+          if (foundErrors >= totalErrors) {
+            celebrate(2);
+            setTimeout(resolve, 900);
+          }
+        };
+        el.addEventListener('click', handleClick);
+        el.addEventListener('touchend', e => { e.preventDefault(); handleClick(); });
+      } else {
+        el.style.cssText = `cursor:pointer;border-radius:4px;padding:2px 3px;
+          color:#e0e0ff;transition:background 0.15s;display:inline;`;
+
+        const handleWrong = () => {
+          if (foundErrors >= totalErrors) return;
+          wrongAttempts++;
+          Audio8bit.play('wrong');
+          el.style.background = 'rgba(231,76,60,0.25)';
+          setTimeout(() => { el.style.background = ''; }, 500);
+          const msgs = ['Ce mot est correct !', 'Pas de faute ici !', 'Cherche encore les mots rouges !'];
+          const fb = document.getElementById('ex-feedback');
+          if (fb) { fb.textContent = '❌ ' + msgs[Math.min(wrongAttempts - 1, 2)]; fb.className = 'exercise-feedback feedback-wrong'; }
+          if (wrongAttempts >= 3) {
+            errorChips.forEach(chip => {
+              if (!chip.dataset.found) {
+                chip.style.cssText = `cursor:default;border:2px solid #ffd700;border-radius:4px;
+                  padding:2px 5px;background:#3a2a00;color:#ffd700;display:inline-block;`;
+              }
+            });
+            const fb2 = document.getElementById('ex-feedback');
+            if (fb2) { fb2.textContent = '💡 Les fautes restantes sont surlignées en or !'; fb2.className = 'exercise-feedback feedback-hint'; }
+            setTimeout(() => { loseHeart(); if (GS.hearts > 0) resolve(); }, 2200);
+          }
+        };
+        el.addEventListener('click', handleWrong);
+        el.addEventListener('touchend', e => { e.preventDefault(); handleWrong(); });
+      }
+
+      bannerDiv.appendChild(el);
     });
-    // Override to allow multiple selections
+
     showScreen('screen-exercise');
   });
 }

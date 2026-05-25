@@ -155,7 +155,8 @@ async function runAct4() {
       characters: [{ name:'malfang', x:0.2, y:0.55 }, { name:'erwan', x:0.7, y:0.65 }],
     },
   ]);
-  Audio8bit.play('bossDead'); // dramatic intro sound
+  Audio8bit.play('drumRoll');
+  setTimeout(() => Audio8bit.play('bossDead'), 700);
 
   // Boss Challenge 1 — Math FR
   await runExercise({
@@ -239,7 +240,8 @@ async function runAct4() {
   ]);
 
   celebrate(5);
-  Audio8bit.play('bossDead');
+  Audio8bit.play('magic');
+  setTimeout(() => Audio8bit.play('bossDead'), 400);
   evolveDragon(); // stage 2 → 3
 
   await runAct5();

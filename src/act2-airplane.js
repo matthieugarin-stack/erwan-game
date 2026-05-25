@@ -124,7 +124,7 @@ async function runAct2() {
   // Mini-game: Catch cloud syllables to spell the dragon's name
   await runCloudGame();
 
-  Audio8bit.play('levelUp');
+  Audio8bit.play('cheer');
   await runAct3();
 }
 

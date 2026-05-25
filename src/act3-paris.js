@@ -145,7 +145,7 @@ async function runAct3() {
   // Mini-game: Map of France — click cities
   await runMapGame();
 
-  Audio8bit.play('levelUp');
+  Audio8bit.play('cheer');
   evolveDragon(); // stage 1 → 2
 
   await runAct4();

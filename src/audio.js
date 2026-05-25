@@ -75,6 +75,24 @@ const Audio8bit = (() => {
       beep({ freq: 660, duration: 0.08, vol: 0.1 });
       beep({ freq: 880, duration: 0.08, delay: 0.1, vol: 0.1 });
     },
+    pop() {
+      beep({ freq: 700 + Math.random() * 200, type: 'square', duration: 0.04, vol: 0.12 });
+    },
+    typewriterTick() {
+      beep({ freq: 750 + Math.random() * 150, type: 'square', duration: 0.018, vol: 0.035 });
+    },
+    magic() {
+      [1047, 1319, 1568, 2093].forEach((f, i) =>
+        beep({ freq: f, type: 'sine', duration: 0.1, delay: i * 0.07, vol: 0.15 }));
+    },
+    drumRoll() {
+      for (let i = 0; i < 10; i++)
+        beep({ freq: 120, type: 'sawtooth', duration: 0.06, delay: i * 0.06, vol: 0.14 - i * 0.01 });
+    },
+    cheer() {
+      [523, 659, 784, 1047, 1319, 1568].forEach((f, i) =>
+        beep({ freq: f, duration: 0.12, delay: i * 0.08, vol: 0.2 }));
+    },
   };
 
   return { play: (name) => { try { sounds[name]?.(); } catch(e) {} } };
